@@ -32,4 +32,11 @@ figure;imshow(imcombine);
 % gaussian kernel, 1 is the sigma (recall the 2D Gaussian function.)
 g = fspecial('gaussian', 50, 50);% try play with this two values to see what will hapen
 imblur = imfilter(imgray, g, 'replicate');
-figure;imshow(imblur)
+figure;imshow(imblur);
+
+% save image
+output_path = '../results/';
+filename = strcat(output_path,'edge.jpg');
+imwrite(imcombine,filename);
+
+
