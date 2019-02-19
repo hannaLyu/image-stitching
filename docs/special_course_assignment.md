@@ -1,8 +1,8 @@
 # special course
 
-~~## week-1
+~~## week-1~~
 
-~~### Content
+~~### Content~~
 
 ~~1. wikipedia on rotation representation: quaternion, euler angle, rotation matrix, axis-angle 附件旋转表达.
 2. useful tools:
