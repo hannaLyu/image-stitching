@@ -4,55 +4,52 @@
 
 ~~### Content~~
 
-~~1. wikipedia on rotation representation: quaternion, euler angle, rotation matrix, axis-angle 附件旋转表达.
-2. useful tools:
-   ~~* LaTex for paper writing;
-   ~~* Github for code version control and review;
+~~1. wikipedia on rotation representation: quaternion, euler angle, rotation matrix, axis-angle 附件旋转表达.~~
+~~2. useful tools:~~
+   ~~* LaTex for paper writing;~~
+   ~~* Github for code version control and review;~~
 
-~~### Assignment
+~~### Assignment~~
 
-~~1. writing a library for conversion among different kinds of representations of rotation, e.g. q2r transforms a quaternion (input) to the corresponding rotation matrix. Ideal package should include (but not limited to):
-   1. q2r: quaternion to rotation matrix;
-   ~~2. r2q: rotation matrix to quaternion;
-   3. e2r: Euler angles to rotation matrix using ZYX order;
-   ~~4. r2e: rotation matrix to Euler angles using ZYX order;
-   5. q2e: quaternion to Euler angles;
-   ~~6. ...... 
+~~1. writing a library for conversion among different kinds of representations of rotation, e.g. q2r transforms a quaternion (input) to the corresponding rotation matrix. Ideal package should include (but not limited to):~~
+   ~~1. q2r: quaternion to rotation matrix;~~
+   ~~2. r2q: rotation matrix to quaternion;~~
+   ~~3. e2r: Euler angles to rotation matrix using ZYX order;~~
+   ~~4. r2e: rotation matrix to Euler angles using ZYX order;~~
+   ~~5. q2e: quaternion to Euler angles;~~
+   ~~6. ...... ~~
 
-~~2. create a Github account and submit your implementation to your first repository.
+~~2. create a Github account and submit your implementation to your first repository.~~
 
-~~### Reading materials:
+~~### Reading materials:~~
 
-~~1. representation of 3D rigid motion;
-2. wikipedia on Euler angles, quaternion, rotation matrix;
+~~1. representation of 3D rigid motion;~~
+~~2. wikipedia on Euler angles, quaternion, rotation matrix;~~
 
 ## week-2 & 3
 
 ### Content
 
-~~1. Fundamentals of Computer Vision: camera model and calibration principles (perspective camera);
-2. Correspondence problem;
-~~3. image features: corner features; 
-
+~~1. Fundamentals of Computer Vision: camera model and calibration principles (perspective camera);~~
+~~2. Correspondence problem;~~
+~~3. image features: corner features;~~
 4. image features: blob features;
 
 ### Assignment 
-
-~~1. implement the Harris corner detector;
-
+~~1. implement the Harris corner detector;~~
 2. implement the Fast feature detector;
 
 ### Reading materials:
 
 1. Introduction to Autonomous Mobile Robots: 
-   ~~* 4.2.1-4.2.3, 
-   ~~* 4.3.1, 
+   ~~* 4.2.1-4.2.3,~~
+   ~~* 4.3.1,~~
    * 4.4 Feature Extraction
-   * 4.5 Image Feature Extraction: Interest Point Detectors: **Harris**, **FAST**.
+   * 4.5 Image Feature Extraction: Interest Point Detectors: ~~**Harris**~~, **FAST**.
 2. https://www.edwardrosten.com/work/fast.html
-~~3. camera and image (相机与图像).
-4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_0_introduction_to_keypoint_features_annotated.pdf
-5. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_1_corner_features.pdf
+~~3. camera and image (相机与图像).~~
+~~4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_0_introduction_to_keypoint_features_annotated.pdf~~
+~~5. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_1_corner_features.pdf~~
 6. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_2_blob_features.pdf
 
 ## week-4
