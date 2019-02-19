@@ -46,11 +46,12 @@
    ~~* 4.3.1,~~
    * 4.4 Feature Extraction
    * 4.5 Image Feature Extraction: Interest Point Detectors: ~~**Harris**~~, **FAST**.
-2. https://www.edwardrosten.com/work/fast.html
-~~3. camera and image (相机与图像).~~
-~~4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_0_introduction_to_keypoint_features_annotated.pdf~~
-~~5. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_1_corner_features.pdf~~
-6. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_2_blob_features.pdf
+~~2. camera and image (相机与图像).~~
+~~3.https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_0_introduction_to_keypoint_features_annotated.pdf~~
+~~4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_1_corner_features.pdf~~
+5. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_2_blob_features.pdf
+6. https://www.edwardrosten.com/work/fast.html.
+
 
 ## week-4
 
