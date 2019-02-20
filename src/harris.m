@@ -56,14 +56,52 @@ R_corner=(R>=(a*RMax)).*R;
 % [row,col]=find(R_localMax(2:height-1,2:width-1)==R_corner(2:height-1,2:width-1));
 
 
-for h = 2:height-1
-for w = 2:width-1
+% for h = 2:height-1
+% for w = 2:width-1
 
-if R(h,w) > R(h-1,w-1) && R(h,w) > R(h-1,w) && R(h,w) > R(h-1,w+1) && R(h,w) > R(h,w-1) && R(h,w) > R(h,w+1) && R(h,w) > R(h+1,w-1) && R(h,w) > R(h+1,w) && R(h,w) > R(h+1,w+1)
-result(h,w) = 1;
+% if  R(h,w) > R(h-1,w-1) && ...
+%     R(h,w) > R(h-1,w) && ...
+%     R(h,w) > R(h-1,w+1) && ...
+%     R(h,w) > R(h,w-1) && ...
+%     R(h,w) > R(h,w+1) && ...
+%     R(h,w) > R(h+1,w-1) && ...
+%     R(h,w) > R(h+1,w) && ...
+%     R(h,w) > R(h+1,w+1)
+% result(h,w) = 1;
 
-end
-end
+% end
+% end
+% end
+hsize = 5;
+[x,y]=meshgrid(-hsize:hsize,-hsize:hsize);
+x = x(:);y=y(:);
+id = x == 0 & y == 0;
+x(id) = []; y(id) = [];
+result = zeros(height,width);
+for h = 1:height
+    for w = 1:width
+        
+% if  R(h,w) > R(h-1,w-1) && ...
+%     R(h,w) > R(h-1,w) && ...
+%     R(h,w) > R(h-1,w+1) && ...
+%     R(h,w) > R(h,w-1) && ...
+%     R(h,w) > R(h,w+1) && ...
+%     R(h,w) > R(h+1,w-1) && ...
+%     R(h,w) > R(h+1,w) && ...
+%     R(h,w) > R(h+1,w+1)
+% result(h,w) = 1;
+        % neighbors in window with window size = hsize*2+1
+        nn = [h+x w+y];
+        valid = nn(:,1) > 0 & nn(:,1) <= height & nn(:,2)>0 & nn(:,2) <= width;
+        nn = nn(valid,:);
+        ind0 = sub2ind([height,width],nn(:,1),nn(:,2));
+        maxval = max(R(ind0));
+        if R(h,w) > maxval
+            result(h,w) = 1;
+        else
+            R(h,w) = 0;
+        end
+    end
 end
 
 [row, col] = find(result == 1);
