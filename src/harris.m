@@ -1,8 +1,14 @@
 % 1.
-I=imread('checkerboard.jpg');
+close all;
+clear all;
+I=imread('../data/library2.jpg');
 figure
 imshow(I)
-gray=rgb2gray(I);
+if size(I,3) == 3
+    gray=rgb2gray(I);
+else
+    gray = I;
+end
 gray = im2double(gray);
 hx= fspecial('sobel');
 hy=hx';
@@ -18,13 +24,13 @@ subplot(2,2,4);imshow(grad,[]);title('sobel gradient');
 
 
 % 2.
-Ix=gradx.^2
-Iy=grady.^2
+Ix=gradx.^2;
+Iy=grady.^2;
 Ixy=gradx.^grady;
 
 % 3.
 h=fspecial('gaussian',[3,1],1);
-w=h.*h;
+w=h*h';
 A=imfilter(Ix,w);
 B=imfilter(Iy,w);
 C=imfilter(Ixy,w);
@@ -49,7 +55,7 @@ end
 
 a=0.01;
 R_corner=(R>=(a*RMax)).*R;
-
+figure;imshow(R_corner);
 % 7.
 % fun = @(x) max(x(:)); 
 % R_localMax = nlfilter(R,[3 3],fun); 
@@ -80,7 +86,10 @@ x(id) = []; y(id) = [];
 result = zeros(height,width);
 for h = 1:height
     for w = 1:width
-        
+        if R_corner(h,w) == 0
+            continue;
+        end
+            
 % if  R(h,w) > R(h-1,w-1) && ...
 %     R(h,w) > R(h-1,w) && ...
 %     R(h,w) > R(h-1,w+1) && ...
@@ -106,10 +115,13 @@ end
 
 [row, col] = find(result == 1);
 
-
 figure
-imshow(gray),title('my-Harris'),
+imshow(I),title('my-Harris'),
 hold on
 plot(col,row, 'ro','MarkerSize',10),
 hold off
+frame = getframe(gca);
+im2 = frame2im(frame);
+[imind,cm] = rgb2ind(im2,256); 
+imwrite(imind,cm,'../results/xiaohan_harris.jpg');
 
