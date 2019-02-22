@@ -33,48 +33,48 @@
 ~~1. Fundamentals of Computer Vision: camera model and calibration principles (perspective camera);~~
 ~~2. Correspondence problem;~~
 ~~3. image features: corner features;~~
-4. image features: blob features;
+~~4. image features: blob features;~~
 
 ### Assignment 
 ~~1. implement the Harris corner detector;~~
-2. implement the Fast feature detector;
+~~2. implement the Fast feature detector;~~
 
 ### Reading materials:
 
 1. Introduction to Autonomous Mobile Robots: 
    ~~* 4.2.1-4.2.3,~~
    ~~* 4.3.1,~~
-   * 4.4 Feature Extraction
-   * 4.5 Image Feature Extraction: Interest Point Detectors: ~~**Harris**~~, **FAST**.
+   ~~* 4.4 Feature Extraction~~
+   ~~* 4.5 Image Feature Extraction: Interest Point Detectors:~~ ~~**Harris**~~, ~~**FAST**.~~
 ~~2. camera and image (相机与图像).~~
 ~~3.https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_0_introduction_to_keypoint_features_annotated.pdf~~
 ~~4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_1_corner_features.pdf~~
-5. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_2_blob_features.pdf
-6. https://www.edwardrosten.com/work/fast.html.
+~~5. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_2_2_blob_features.pdf~~
+~~6. https://www.edwardrosten.com/work/fast.html.~~
 
 
 ## week-4
 
 ### Content
 
-1. feature descriptor and feature matching;
-2. strategy: brute-force, k-nearest-neighbor;
+~~1. feature descriptor and feature matching;~~
+~~2. strategy: brute-force, k-nearest-neighbor;~~
 
 ### Assignment
 
-1. Introduction to Autonomous Mobile Robots: 
-   - 4.2.5: correspondence problem
-   - 4.3.3 
+~~1. Introduction to Autonomous Mobile Robots:~~ 
+   ~~- 4.2.5: correspondence problem~~
+   ~~- 4.3.3 ~~
 
-1. extract FAST features and describe them using BRIEF descriptor.
-2. feature matching using brute-force strategy.
+~~1. extract FAST features and describe them using BRIEF descriptor.~~
+~~2. feature matching using brute-force strategy.~~
 
 ### Reading material
 
-1. https://www.cs.ubc.ca/~lowe/525/papers/calonder_eccv10.pdf: brief.
-2. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_0_from_keypoints_to_correspondences.pdf
-3. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_1_feature_descriptors.pdf
-4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_2_feature_matching.pdf
+~~1. https://www.cs.ubc.ca/~lowe/525/papers/calonder_eccv10.pdf: brief.~~
+~~2. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_0_from_keypoints_to_correspondences.pdf~~
+~~3. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_1_feature_descriptors.pdf~~
+~~4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_2_feature_matching.pdf~~
 
 ## week-5 
 
