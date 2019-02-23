@@ -6,7 +6,7 @@ clc;close all;clear all;
 addpath ../data/
 
 % load an image
-im1 = imread('checkerboard.jpg');
+im1 = imread('library2.jpg');
 
 % display an image
 figure;imshow(im1)
@@ -93,7 +93,13 @@ for i = 1:size(C,1)
     end
 end
 corners(K+1:end,:)=[];
-figure;imshow(imdouble,[]);hold on;
+figure;imshow(im1,[]);hold on;
 dtured = [153/255,0,0];
-plot(corners(:,2),corners(:,1),'o','MarkerSize',5,'MarkerEdgeColor',dtured);
+% plot(corners(:,2),corners(:,1),'o','MarkerSize',5,'MarkerEdgeColor',dtured);
+
+fast = fast_corner_detector(imdouble, 300);
+plot(fast(:,2),fast(:,1), 'o','MarkerSize',5,'MarkerEdgeColor',dtured);
+
+brief_pattern;
+descriptors = extract_brief_descriptor(imdouble,fast,pattern);
 
