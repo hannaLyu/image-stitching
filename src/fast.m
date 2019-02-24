@@ -9,6 +9,8 @@ imshow(img)
 result=zeros(m,n);
 
 t=40;   
+% for proof of concept, it is ok to use loop in matlab. However, for and while are extremely slow in Matlab.
+% It is a good ideal to use vectorization whenever possible.
 for i=4:m-3
     for j=4:n-3
         Ic=img(i,j);    
