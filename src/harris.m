@@ -54,29 +54,8 @@ end
 a=0.01;
 R_corner=(R>=(a*RMax)).*R;
 figure;imshow(R_corner);
-hsize = 5;
-[x,y]=meshgrid(-hsize:hsize,-hsize:hsize);
-x = x(:);y=y(:);
-id = x == 0 & y == 0;
-x(id) = []; y(id) = [];
-result = zeros(height,width);
-for h = 1:height
-    for w = 1:width
-        if R_corner(h,w) == 0
-            continue;
-        end
-        nn = [h+x w+y];
-        valid = nn(:,1) > 0 & nn(:,1) <= height & nn(:,2)>0 & nn(:,2) <= width;
-        nn = nn(valid,:);
-        ind0 = sub2ind([height,width],nn(:,1),nn(:,2));
-        maxval = max(R(ind0));
-        if R(h,w) > maxval
-            result(h,w) = 1;
-        else
-            R(h,w) = 0;
-        end
-    end
-end
+R(R<(a*RMax))=0;
+result = nonmaxima_suppression(R, 5);
 
 [row, col] = find(result == 1);
 
