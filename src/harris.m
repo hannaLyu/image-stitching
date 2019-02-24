@@ -1,7 +1,7 @@
-% 1.
-close all;
-clear all;
-I=imread('../data/library2.jpg');
+function [img] =harris
+%UNTITLED3 Summary of this function goes here
+%   Detailed explanation goes here
+I=imread('checkerboard.jpg');
 figure
 imshow(I)
 if size(I,3) == 3
@@ -21,8 +21,6 @@ subplot(2,2,1);imshow(gray);title('original');
 subplot(2,2,2);imshow(gradx,[]);title(' horizon gradient');
 subplot(2,2,3);imshow(grady,[]);title('vertical gradient');
 subplot(2,2,4);imshow(grad,[]);title('sobel gradient');
-
-
 % 2.
 Ix=gradx.^2;
 Iy=grady.^2;
@@ -56,28 +54,6 @@ end
 a=0.01;
 R_corner=(R>=(a*RMax)).*R;
 figure;imshow(R_corner);
-% 7.
-% fun = @(x) max(x(:)); 
-% R_localMax = nlfilter(R,[3 3],fun); 
-% [row,col]=find(R_localMax(2:height-1,2:width-1)==R_corner(2:height-1,2:width-1));
-
-
-% for h = 2:height-1
-% for w = 2:width-1
-
-% if  R(h,w) > R(h-1,w-1) && ...
-%     R(h,w) > R(h-1,w) && ...
-%     R(h,w) > R(h-1,w+1) && ...
-%     R(h,w) > R(h,w-1) && ...
-%     R(h,w) > R(h,w+1) && ...
-%     R(h,w) > R(h+1,w-1) && ...
-%     R(h,w) > R(h+1,w) && ...
-%     R(h,w) > R(h+1,w+1)
-% result(h,w) = 1;
-
-% end
-% end
-% end
 hsize = 5;
 [x,y]=meshgrid(-hsize:hsize,-hsize:hsize);
 x = x(:);y=y(:);
@@ -89,17 +65,6 @@ for h = 1:height
         if R_corner(h,w) == 0
             continue;
         end
-            
-% if  R(h,w) > R(h-1,w-1) && ...
-%     R(h,w) > R(h-1,w) && ...
-%     R(h,w) > R(h-1,w+1) && ...
-%     R(h,w) > R(h,w-1) && ...
-%     R(h,w) > R(h,w+1) && ...
-%     R(h,w) > R(h+1,w-1) && ...
-%     R(h,w) > R(h+1,w) && ...
-%     R(h,w) > R(h+1,w+1)
-% result(h,w) = 1;
-        % neighbors in window with window size = hsize*2+1
         nn = [h+x w+y];
         valid = nn(:,1) > 0 & nn(:,1) <= height & nn(:,2)>0 & nn(:,2) <= width;
         nn = nn(valid,:);
@@ -116,12 +81,13 @@ end
 [row, col] = find(result == 1);
 
 figure
-imshow(I),title('my-Harris'),
+img=imshow(I),title('my-Harris'),
 hold on
 plot(col,row, 'ro','MarkerSize',10),
 hold off
 frame = getframe(gca);
 im2 = frame2im(frame);
 [imind,cm] = rgb2ind(im2,256); 
-imwrite(imind,cm,'../results/xiaohan_harris.jpg');
+
+end
 
