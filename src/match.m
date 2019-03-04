@@ -1,3 +1,6 @@
+addpath('features/');
+addpath('precompute/');
+
 I1=imread('chickenbroth_01.jpg');
 I2=imread('chickenbroth_02.jpg');
 [s11,s12,s13] = size(I1);
@@ -24,20 +27,23 @@ else
 end
 
 
-corner1=fast(I1);
-corner2=fast(I2);
+ corner1=fast(im1gray);
+ corner2=fast(im2gray);
+% 
+% corner1 = fast_corner_detector(im1gray, 500);
+% corner2 = fast_corner_detector(im2gray, 500);
 
 img1 = im2double(im1gray);
 img2= im2double(im2gray);
 
-patten=brief_pattern_generator;
-% descriptor1= extract_brief_descriptor(img1,corner1,patten);
-% descriptor2= extract_brief_descriptor(img2,corner2,patten);
-descriptor1 = brief_descriptor(img1,corner1,patten);
-descriptor2 = brief_descriptor(img2,corner2,patten);
+brief_pattern;
+% descriptor1= extract_brief_descriptor(img1,corner1,pattern);
+% descriptor2= extract_brief_descriptor(img2,corner2,pattern);
+descriptor1 = brief_descriptor(img1,corner1,pattern);
+descriptor2 = brief_descriptor(img2,corner2,pattern);
 
-matching_pairs = bruteforce(descriptor1,descriptor2);
-% matchingpairs = brief_matching(descriptors1, descriptors2);
+% matching_pairs = bruteforce(descriptor1,descriptor2);
+matchingpairs = brief_matching(descriptor1, descriptor2);
 
 imshow1 = cat(2, img1, img2);
 figure;imshow(imshow1);hold on;
