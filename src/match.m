@@ -1,4 +1,7 @@
-addpath('features/');
+clear all;
+close all;
+clc;
+addpath('mybrieffast/');
 addpath('precompute/');
 
 I1=imread('chickenbroth_01.jpg');
@@ -26,21 +29,21 @@ else
     im2gray = I2;
 end
 
+[corner1,res1]=fast(im1gray);
+[corner2,res2]=fast(im2gray);
 
- corner1=fast(im1gray);
- corner2=fast(im2gray);
+img1 = im2double(im1gray);
+img2 = im2double(im2gray);
+
 % 
 % corner1 = fast_corner_detector(im1gray, 500);
 % corner2 = fast_corner_detector(im2gray, 500);
 
-img1 = im2double(im1gray);
-img2= im2double(im2gray);
-
 brief_pattern;
 % descriptor1= extract_brief_descriptor(img1,corner1,pattern);
 % descriptor2= extract_brief_descriptor(img2,corner2,pattern);
-descriptor1 = brief_descriptor(img1,corner1,pattern);
-descriptor2 = brief_descriptor(img2,corner2,pattern);
+descriptor1 = extractdes(img1,corner1,pattern);
+descriptor2 = extractdes(img2,corner2,pattern);
 
 % matching_pairs = bruteforce(descriptor1,descriptor2);
 matchingpairs = brief_matching(descriptor1, descriptor2);
@@ -50,3 +53,16 @@ figure;imshow(imshow1);hold on;
 
 plot(corner1(:,2),corner1(:,1), 'ro','MarkerSize',5);
 plot(corner2(:,2)+size(I1,2),corner2(:,1), 'bo','MarkerSize',5);
+shift = size(I1,2);
+cmap = jet(32);
+k = 1;
+for i = 1:size(matchingpairs,1)
+    if ~isinf(matchingpairs(i,2))
+        ptdraw = [corner1(matchingpairs(i,1),1), corner1(matchingpairs(i,1),2);
+                  corner2(matchingpairs(i,2),1), corner2(matchingpairs(i,2),2)+shift];
+        plot(ptdraw(:,2),ptdraw(:,1),'LineStyle','-','LineWidth',0.5,'Color',cmap(k,:));
+        k = mod(k+1,32);
+        if k == 0 k = 1;
+    end
+    end
+end
