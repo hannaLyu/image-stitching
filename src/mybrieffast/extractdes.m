@@ -12,10 +12,15 @@ function descriptor = extractdes(im,corner,patten)
         
         u2 = corner(i,1) + patten(3,:);
         v2 = corner(i,2) + patten(4,:);
-        try
+        
+        % out of border, skip
+        invalid = find(u1 < 0 | u1 > M | v1 < 0 | v1 > N,1);
+        
+        if isempty(invalid)
             ind1 = sub2ind([M,N],u1,v1);
             ind2 = sub2ind([M,N],u2,v2);
-        catch
+        else
+            continue;
 %             error('sss');
         end
         desp1 = im(ind1)';
