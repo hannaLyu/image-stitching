@@ -46,7 +46,7 @@ descriptor1 = extractdes(img1,corner1,pattern);
 descriptor2 = extractdes(img2,corner2,pattern);
 
 % matching_pairs = bruteforce(descriptor1,descriptor2);
-matchingpairs = brief_matching(descriptor1, descriptor2);
+matchingpairs = bruteforce(descriptor1, descriptor2);
 
 imshow1 = cat(2, img1, img2);
 figure;imshow(imshow1);hold on;
