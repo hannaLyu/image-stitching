@@ -36,8 +36,8 @@ cmap = jet(32);
 k = 1;
 for i = 1:size(matches,1)
     if ~isinf(matches(i,2))
-        ptdraw = [fa(1,matches(i,1)), fa(2,matches(i,1));
-                  fb(1,matches(i,2)), fb(2,matches(i,2))+shift];
+        ptdraw = [fa(2,matches(i,1)), fa(1,matches(i,1));
+                  fb(2,matches(i,2)), fb(1,matches(i,2))+shift];
         plot(ptdraw(:,2),ptdraw(:,1),'LineStyle','-','LineWidth',0.5,'Color',cmap(k,:));
         k = mod(k+1,32);if k == 0 k = 1;end
     end
