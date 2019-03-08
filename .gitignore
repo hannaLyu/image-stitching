@@ -1,2 +1,7 @@
 
 *.asv
+docs/texfile/build/ex6.aux
+docs/texfile/build/ex6.log
+docs/texfile/build/ex6.out
+docs/texfile/build/ex6.pdf
+docs/texfile/build/ex6.synctex.gz
