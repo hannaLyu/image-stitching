@@ -5,3 +5,15 @@ docs/texfile/build/ex6.log
 docs/texfile/build/ex6.out
 docs/texfile/build/ex6.pdf
 docs/texfile/build/ex6.synctex.gz
+3rdparty/fast_brief/*
+3rdparty/image_mosaic_stitching-master/*
+
+docs/texfile/*.bbl
+docs/texfile/*.log
+docs/texfile/*.out
+docs/texfile/*.pdf
+docs/texfile/*.synctex.gz
+docs/texfile/*.aux
+docs/texfile/*.blg
+
+src/test.m
