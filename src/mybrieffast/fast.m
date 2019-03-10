@@ -1,10 +1,5 @@
 function [corner,result]= fast(img)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
 
-% img=imread('library2.jpg');
-% imshow(img)
-% img = im2double(img);
 [m n]=size(img);
 result=zeros(m,n);
 
@@ -28,17 +23,7 @@ for i=4:m-3
         end
     end
 end
-% for i=4:m-3
-%     for j=4:n-3
-%         if result(i,j)~=0
-%             if max(max(result(i-2:i+2,j-2:j+2)))==result(i,j)               
-%                 [img(i-3,j), img(i-3,j+1), img(i-2,j+2), img(i-1,j+3), img(i,j+3), img(i+1,j+3), img(i+2,j+2), img(i+3,j+1), ...
-%                  img(i+3,j), img(i+3,j-1), img(i+2,j-2), img(i+1,j-3), img(i,j-3), img(i-1,j-3), img(i-2,j-2), img(i-3,j-1)]= ...
-%                  deal(255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255);
-%             end
-%         end
-%     end
-% end
+
 
 hsize = 5;
 [x,y]=meshgrid(-hsize:hsize,-hsize:hsize);
@@ -62,17 +47,15 @@ for i = 4:m-3
         end
     end
 end
-% [row, col] = find(results == 1);
-% figure
-% imshow(img),title('fast corner with bresenham circle'),
-% hold on
-% plot(col,row, 'r*','MarkerSize',5),
-% hold off
+
  [mm,nn]=size(result);
+result = result(:,1:nn/3); 
 a=0;
 corner = zeros(mm*nn,2);
-for i=1:mm
-    for j=1:nn
+[M,N]=size(result);
+
+for i=1:M
+    for j=1:N
     if result(i,j)~=0
         a=a+1;
       corner(a,:)=[i,j];
@@ -80,8 +63,11 @@ for i=1:mm
     end
 
 end
+
+
 corner(a+1:end,:)=[];
-
-
+imshow(img);
+hold on
+plot(corner(:,2),corner(:,1),'o');
 end
 

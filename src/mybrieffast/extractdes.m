@@ -21,7 +21,7 @@ function descriptor = extractdes(im,corner,patten)
             ind2 = sub2ind([M,N],u2,v2);
         else
             continue;
-%             error('sss');
+            error('sss');
         end
         desp1 = im(ind1)';
         desp2 = im(ind2)';
