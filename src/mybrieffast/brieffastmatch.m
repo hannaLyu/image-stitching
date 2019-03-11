@@ -1,3 +1,5 @@
+clear all;
+
 img1=imread('chickenbroth_01.jpg');
 img2=imread('chickenbroth_02.jpg');
 [s11,s12,s13] = size(img1);
@@ -10,12 +12,13 @@ if s11 * s12 ~= s21*s22
         img1 = imresize(img1,[s21,s22]);
     end
 end
-
+im1gray = rgb2gray(img1);
+im2gray=rgb2gray(img2);
 corner1=fast(img1);
 corner2=fast(img2);
 patten=brief_pattern_generator;
-descriptor1=extractdes(img1,corner1,patten);
-descriptor2=extractdes(img2,corner2,patten);
+descriptor1=extractdes(im1gray,corner1,patten);
+descriptor2=extractdes(im2gray,corner2,patten);
 matchingpairs=bruteforce(descriptor1,descriptor2);
 imshow1 = cat(2, img1, img2);
 figure;imshow(imshow1);hold on;
@@ -23,7 +26,7 @@ figure;imshow(imshow1);hold on;
 plot(corner1(:,2),corner1(:,1), 'ro','MarkerSize',3);
 plot(corner2(:,2)+size(img1,2),corner2(:,1), 'bo','MarkerSize',3);
 
-shift = size(im1,2);
+shift = size(img1,2);
 cmap = jet(32);
 k = 1;
 for i = 1:size(matchingpairs,1)

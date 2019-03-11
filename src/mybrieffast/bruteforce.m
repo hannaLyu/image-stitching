@@ -9,7 +9,7 @@ function varargout = bruteforce(descriptor1, descriptor2)
             despxor = sum(despxor,2);
             [~,id] = min(despxor);
                 matching_pairs(i,:) = [i, id];
-             end
+        end
        
     varargout{1} = matching_pairs;
 end
