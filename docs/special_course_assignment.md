@@ -41,7 +41,7 @@
 
 ### Reading materials:
 
-1. Introduction to Autonomous Mobile Robots: 
+~~1. Introduction to Autonomous Mobile Robots:~~
    ~~* 4.2.1-4.2.3,~~
    ~~* 4.3.1,~~
    ~~* 4.4 Feature Extraction~~
@@ -88,8 +88,8 @@
 
 ### Reading material
 
-~~1. Introduction to Autonomous Mobile Robots: 
-   - 4.7.2.3~~
+~~1. Introduction to Autonomous Mobile Robots:~~
+   ~~- 4.7.2.3~~
 ~~2. http://www.cse.psu.edu/~rtc12/CSE486/lecture15.pdf~~
 ~~3. https://en.wikipedia.org/wiki/Random_sample_consensus~~
 ~~4. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_3_3-robust-estimation-with-ransac.pdf~~
