@@ -23,13 +23,13 @@ for i=1:iter
    inlierNum = length(inlierIdx);  %caculate inlier'number
      if inlierNum>pretotal           
          pretotal=inlierNum;
-         bestline=line;  
+     
          mask=distance;
     end  
 end
 
   
-result=distance<sigma;
+result=mask<sigma;
 
 end
 
