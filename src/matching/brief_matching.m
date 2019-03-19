@@ -8,15 +8,15 @@ function varargout = brief_matching(descriptor1, descriptor2)
             descriptor1rep = repmat(descriptor1(i,:),n2,1);
             despxor = xor(descriptor1rep,descriptor2);
             despxor = sum(despxor,2);
-            [~,id] = min(despxor);
-%             [val,minid] = sort(despxor,'ascend');
-%             best = val(1);
-%             secondbest = val(2);
-%             if best < secondbest*0.9
-                matching_pairs(i,:) = [i, id];
-%             else
-%                 matching_pairs(i,:) = [i, inf];
-%             end
+%             [~,id] = min(despxor);
+            [val,minid] = sort(despxor,'ascend');
+            best = val(1);
+            secondbest = val(2);
+            if best < secondbest*0.9
+                matching_pairs(i,:) = [i, minid(1)];
+            else
+                matching_pairs(i,:) = [i, inf];
+            end
         end
     end
     varargout{1} = matching_pairs;
