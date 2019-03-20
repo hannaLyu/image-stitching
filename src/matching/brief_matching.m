@@ -12,7 +12,7 @@ function varargout = brief_matching(descriptor1, descriptor2)
             [val,minid] = sort(despxor,'ascend');
             best = val(1);
             secondbest = val(2);
-            if best < secondbest*0.9
+            if best < secondbest*0.6
                 matching_pairs(i,:) = [i, minid(1)];
             else
                 matching_pairs(i,:) = [i, inf];
