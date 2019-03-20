@@ -1,8 +1,8 @@
-function patten = brief_pattern_generator()
+function pattern = brief_pattern_generator()
     clear all;close all;
     type = 'Gaussianiid';
     hsize = 9;
-    bits = 128;% 256, 512
+    bits = 256;% 256, 512
     fsize = 2*hsize;
     if strcmp(type, 'Uniform')
         X1 = round(rand(1,bits).*(fsize)-hsize);
@@ -25,7 +25,7 @@ function patten = brief_pattern_generator()
         
     end
 
-    
+    pattern = [X1;Y1;X2;Y2];
     
     [Xx,Yy] = meshgrid(-hsize:1:hsize,-hsize:1:hsize);
     Xx = Xx(:);Yy = Yy(:);
