@@ -84,9 +84,9 @@ addpath(genpath('./matching'));
 
 
 % load an image
-im1 = imread('../data/hill/1.jpg');
-im2 = imread('../data/hill/2.jpg');
-im3 = imread('../data/pier/3.jpg');
+im1 = imread('../data/ledge/1.jpg');
+im2 = imread('../data/ledge/2.jpg');
+im3 = imread('../data/ledge/3.jpg');
 
 [s11,s12,s13] = size(im1);
 [s21,s22,s23] = size(im2);
@@ -115,45 +115,45 @@ else
 end
 
 % convert image from uint8 to double, make nothing but convert 255 - 1, 0-0
-im1double = im2double(im1gray);
-im2double = im2double(im2gray);
-im3double = im2double(im3gray);
+im1d = im2double(im1gray);
+im2d = im2double(im2gray);
+im3d = im2double(im3gray);
 
-fast1 = fast_corner_detector(im1double, 1000);
-fast2 = fast_corner_detector(im2double, 1000);
-fast3 = fast_corner_detector(im3double, 1000);
+fast1 = fast_corner_detector(im1d, 500);
+fast2 = fast_corner_detector(im2d, 500);
+fast3 = fast_corner_detector(im3d, 500);
 
 
-brief_pattern;
-descriptors1 = extract_brief_descriptor(im1double,fast1,pattern);
-descriptors2 = extract_brief_descriptor(im2double,fast2,pattern);
-descriptors3 = extract_brief_descriptor(im3double,fast3,pattern);
+% brief_pattern;
+load('./features/brief_pattern256.mat')
+descriptors1 = extract_brief_descriptor(im1d,fast1,pattern);
+descriptors2 = extract_brief_descriptor(im2d,fast2,pattern);
+descriptors3 = extract_brief_descriptor(im3d,fast3,pattern);
 
-matchingpairs = brief_matching(descriptors1, descriptors2);
+matchingpairs = brief_matching(descriptors2, descriptors3);
 id = ~isinf(matchingpairs(:,2));
 
 ransac.pinlier = 0.99;
 ransac.estt_fun = @HestWithNormalization;%plane_estimation
 ransac.eval_fun = @reprojectionError;%dist2plane
-ransac.maxiter = 1e6;
-ransac.threshold = 12;
+ransac.maxiter = 1e3;
+ransac.threshold = 6;
 ransac.inliers = [];
 ransac.minimumset = 4;
-
-x1h = tohomogeneous(fast1(matchingpairs(id,1),[2,1])');
-x2h = tohomogeneous(fast2(matchingpairs(id,2),[2,1])');
+x1h = tohomogeneous(fast2(matchingpairs(id,1),[2,1])');
+x2h = tohomogeneous(fast3(matchingpairs(id,2),[2,1])');
 result = ransac_routine_homo(x1h, x2h, ransac);
 x1h = x1h(:,result.inliers);
 x2h = x2h(:,result.inliers);
 
-imshow1 = cat(2, im1, im2);
+imshow1 = cat(2, im2, im3);
 figure;imshow(imshow1);hold on;
 
-plot(fast1(:,2),fast1(:,1), 'ro','MarkerSize',5);
-plot(fast2(:,2)+size(im1double,2),fast2(:,1), 'bo','MarkerSize',5);
+plot(fast2(:,2),fast2(:,1), 'ro','MarkerSize',5);
+plot(fast3(:,2)+size(im1d,2),fast3(:,1), 'bo','MarkerSize',5);
 
 
-shift = size(im1double,2);
+shift = size(im1d,2);
 cmap = jet(32);
 k = 1;
 for i = 1:size(x1h,2)
@@ -164,25 +164,6 @@ for i = 1:size(x1h,2)
 end
 
 
-im12 = WarpNViewMod(result.params,im1,im2);
+im12 = WarpAndBlend(result.params,im2,im3);
 figure;imshow(im12);
-
-% matchingpairs = brief_matching(descriptors2, descriptors3);
-% id = ~isinf(matchingpairs(:,2));
-% 
-% ransac.pinlier = 0.99;
-% ransac.estt_fun = @HestWithNormalization;%plane_estimation
-% ransac.eval_fun = @reprojectionError;%dist2plane
-% ransac.maxiter = 1e6;
-% ransac.threshold = 9;
-% ransac.inliers = [];
-% ransac.minimumset = 4;
-% 
-% x1h = tohomogeneous(fast2(matchingpairs(id,1),[2,1])');
-% x2h = tohomogeneous(fast3(matchingpairs(id,2),[2,1])');
-% result = ransac_routine_homo(x1h, x2h, ransac);
-% 
-% im123 = WarpNViewMod(result.params,im12,im3);
-% figure;imagesc(im123);
-
 
