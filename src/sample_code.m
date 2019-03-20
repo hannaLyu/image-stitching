@@ -43,6 +43,11 @@ output_path = '../results/';
 filename = strcat(output_path,'edge.jpg');
 imwrite(imcombine,filename);
 
+corners = Harris(imdouble, 1000); 
+figure;imshow(im1,[]);hold on;
+dtured = [153/255,0,0];
+plot(corners(:,2),corners(:,1),'o','MarkerSize',5,'MarkerEdgeColor',dtured);
+
 % harris
 Ix = edge(imdouble,'Sobel',[],'horizontal');
 Iy = edge(imdouble,'Sobel',[],'vertical');

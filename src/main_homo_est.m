@@ -84,9 +84,9 @@ addpath(genpath('./matching'));
 
 
 % load an image
-im1 = imread('../data/ledge/1.jpg');
-im2 = imread('../data/ledge/2.jpg');
-im3 = imread('../data/ledge/3.jpg');
+im1 = imread('../data/pier/1.jpg');
+im2 = imread('../data/pier/2.jpg');
+im3 = imread('../data/pier/3.jpg');
 
 [s11,s12,s13] = size(im1);
 [s21,s22,s23] = size(im2);
@@ -119,10 +119,13 @@ im1d = im2double(im1gray);
 im2d = im2double(im2gray);
 im3d = im2double(im3gray);
 
-fast1 = fast_corner_detector(im1d, 500);
-fast2 = fast_corner_detector(im2d, 500);
-fast3 = fast_corner_detector(im3d, 500);
+% fast1 = fast_corner_detector(im1d, 500);
+% fast2 = fast_corner_detector(im2d, 500);
+% fast3 = fast_corner_detector(im3d, 500);
 
+fast1 = Harris(im1d, 1000);
+fast2 = Harris(im2d, 1000);
+fast3 = Harris(im3d, 1000);
 
 % brief_pattern;
 load('./features/brief_pattern256.mat')
