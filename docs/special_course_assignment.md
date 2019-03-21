@@ -98,8 +98,8 @@
 
 ### Content
 
-1. Two view geometry: essential, fundamental, **Homography**;
-2. DLT for homography estimation;
+1. ~~Two view geometry: essential, fundamental, **Homography**;~~
+2. ~~DLT for homography estimation;~~
 
 ### Assignment
 
