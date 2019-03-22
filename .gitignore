@@ -20,3 +20,5 @@ src/test.m
 src/features/brief_pattern256.m
 src/precompute/test.m
 src/precompute/test.mat
+
+docs/texfile/normalization.m
