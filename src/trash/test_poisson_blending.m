@@ -66,14 +66,43 @@ function boundary = findBoundary(bw)
 end
 
 function imblend = poissonBlend(source,target,mask,boundary)
-    m = size(source,1);n = size(source,2);
-    N = m*n;
+    int = xor(mask, boundary);
+    N = sum(int);
+    A = sparse(N,N);
+    b = zeros(N,1);
+    
+    m = size(target,1);
+    n = size(target,2);
+    [row, col] = find(int);
+    map1((row-1).*n+col) = 1:N;
+    % establish
+    
+    nnu = [row-1,col];n1 = nnu(:,1)>0;  nuint=n1;nuint(n1) = int((nnu(n1,1)-1).*n+nnu(n1,2)) == 1;
+    nnd = [row+1,col];n2 = nnd(:,1)<=m; ndint=n2;ndint(n2) = int((nnd(n2,1)-1).*n+nnd(n2,2)) == 1;
+    nnl = [row,col-1];n3 = nnl(:,2)>0;  nlint=n3;nlint(n3) = int((nnl(n3,1)-1).*n+nnl(n3,2)) == 1;
+    nnr = [row,col+1];n4 = nnr(:,2)<=n; nrint=n4;nrint(n4) = int((nnr(n4,1)-1).*n+nnr(n4,2)) == 1;
+    
+    Np = double(n1) + double(n2) + double(n3) + double(n4);
+    for  i = 1:N
+        A(i, (map1((row-1).*n+col))) = Np(i);
+        A(i, (map1((nnu()-1).*n+col)))
+    end
+
+
+    A((map1((row-1).*n+col)-1).*N+ (map1((row-1).*n+col))) = Np;
+
+    A((map1((nnu(nuint,1)-1).*n+col)-1).*N+ (map1((row-1).*n+col))) = Np;
+    
+
     A = spdiags([-4.*ones(N,1) ones(N,1) ones(N,1) ones(N,1) ones(N,1)],[0,1,-1,m,-m],N,N);
     ii = m:m:N-m;
     jj = ii+1;
     A((ii-1)*N+jj) = 0;
+    A((ii)*N+jj) = -3;
     ii = m:m:N-m;
     A((ii.*N+ii)) = 0;
+    A((ii)*N+jj) = -3;
+    A = A.*-1;
     % gradient of source
     ds = A * source(:);
     % gradient of target
@@ -99,6 +128,10 @@ function imblend = poissonBlend(source,target,mask,boundary)
 %     ind1 = 1:N;
 %     ind1 = ind1(mask(:));
 %     Ab = A(ind1,ind1);
+
+    % 1st no mixing
+    int = xor(mask, boundary);
+    v = ds(int);
 
     b = dt;
     [row,col] = find(~boundary);
