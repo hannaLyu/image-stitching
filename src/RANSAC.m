@@ -1,41 +1,40 @@
-
-X = gen_line_data(500);
- figure;
- plot(X(1,:),X(2,:),'o');hold on; % show points
-number = size(X,2); % total points
-sigma = 0.3;   %threshold
- pretotal=0;  %points which meet requirement
-iter=1000;
-
-
-for i=1:iter
-   idx = randperm(number,2);
-   sample = X(:,idx); 
-   x = sample(:, 1);
-   y = sample(:, 2);
-    %coordinates of two points
-   p1=[x(1);y(1);1];
-   p2=[x(2);y(2);1];
-    %line which two points decided
-   line=cross(p1,p2); 
-   line=transpose(line);
-%caculate distance between every point and current line  
-distance=abs(line(1:2)*(X - repmat(sample(:,1),1,number)));
-    inlierIdx = find(distance<sigma);%find inlier which colse to line
-    inlierNum = length(inlierIdx);  %caculate inlier'number
-     if inlierNum>pretotal           
-         pretotal=inlierNum;
-         bestline=line;        
-    end  
- end
-
-   distance=distance<sigma;    
-hold on;
-k=1;
-for i=1:length(distance)
-    if distance(i)
-        inliers(1,k) = X(1,i);
-        k=k+1;
-        plot(X(1,i),X(2,i),'+');
-    end
+function inlierNum = ransac(X1,X2)
+number1=size(X1,2);
+number2=size(X2,2);
+X1= tohomogeneous(X1);
+X2= tohomogeneous(X2);
+distance=zeros(1,number1);
+sigma =1;
+j=1;
+pretotal=0;  %points which meet requirement
+iter=500;
+while (j<=iter)
+   idx1 = randperm(number1,4);
+   x1 = X1(:,idx1); 
+  [T1,x1h] = normalization(x1);
+   idx2 = randperm(number2,4);
+   x2 = X2(:,idx2);
+   [T2,x2h] = normalization(x2);
+    H1=Hest(x1h,x2h);
+   H=inv(T2)*H1*T1;
+   
+  for i=1:iter
+   a=H* X1(:,i);
+   b=inv(H)*X2(:,i);
+   distance(:,i)=norm(X2(:,i)-a)+norm(X1(:,i)-b);
+  end
+   inlierIdx = find(distance<sigma);%find inlier which colse to line
+   inlierNum = length(inlierIdx);  %caculate inlier'number
+   if inlierNum>pretotal         %find best line  
+      inlierNum=pretotal;
+      
+    end       
+  
+   j=j+1;
 end
+
+
+
+
+end
+
