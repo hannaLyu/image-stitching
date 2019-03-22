@@ -83,10 +83,27 @@ function imblend = poissonBlend(source,target,mask,boundary)
     nnr = [row,col+1];n4 = nnr(:,2)<=n; nrint=n4;nrint(n4) = int((nnr(n4,1)-1).*n+nnr(n4,2)) == 1;
     
     Np = double(n1) + double(n2) + double(n3) + double(n4);
-    for  i = 1:N
-        A(i, (map1((row-1).*n+col))) = Np(i);
-        A(i, (map1((nnu()-1).*n+col)))
-    end
+
+    id1 = 1:1:N - 1;
+    A(id1.*N + (map1((row-1).*n+col))) = Np;
+
+    A(id1(nuint).*N + (map1((nnu(nuint,1)-1).*n+nnu(nuint,2)))) = -1;
+    A(id1(ndint).*N + (map1((nnd(ndint,1)-1).*n+nnd(ndint,2)))) = -1;   
+    A(id1(nlint).*N + (map1((nnl(nlint,1)-1).*n+nnl(nlint,2)))) = -1;
+    A(id1(nrint).*N + (map1((nnr(nrint,1)-1).*n+nnr(nrint,2)))) = -1;
+
+    % boundary
+    nubint=n1;nubint(n1) = boundary((nnu(n1,1)-1).*n+nnu(n1,2)) == 1;
+    ndbint=n2;ndbint(n2) = boundary((nnd(n2,1)-1).*n+nnd(n2,2)) == 1;
+    nlbint=n3;nlbint(n3) = boundary((nnl(n3,1)-1).*n+nnl(n3,2)) == 1;
+    nrbint=n4;nrbint(n4) = boundary((nnr(n4,1)-1).*n+nnr(n4,2)) == 1;
+    
+    b1 = zeros(N,1);
+    b1(nubint) = b1(nubint) + target((nnu(nubint,1)-1).*n+nnu(nubint,1)-2);
+    b1(ndbint) = b1(ndbint) + target((nnu(ndbint,1)-1).*n+nnu(ndbint,1)-2);
+    b1(nlbint) = b1(nlbint) + target((nnu(nlbint,1)-1).*n+nnu(nlbint,1)-2);
+    b1(nrbint) = b1(nrbint) + target((nnu(nrbint,1)-1).*n+nnu(nrbint,1)-2);
+
 
 
     A((map1((row-1).*n+col)-1).*N+ (map1((row-1).*n+col))) = Np;
