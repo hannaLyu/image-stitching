@@ -1,13 +1,13 @@
 clc;clear all;close all;
 
-imgpath = '../data/pier/';  
+% imgpath = '../data/pier/';  
 
 % Load images.
-buildingScene = imageDatastore(imgpath);
+% buildingScene = imageDatastore(imgpath);
 
 % Load images.
-% buildingDir = fullfile(toolboxdir('vision'), 'visiondata', 'building');
-% buildingScene = imageDatastore(buildingDir);
+buildingDir = fullfile(toolboxdir('vision'), 'visiondata', 'building');
+buildingScene = imageDatastore(buildingDir);
 
 % Display images to be stitched
 montage(buildingScene.Files);
@@ -156,11 +156,12 @@ width  = size(mask0,2);
 height = size(mask0,1);
 
 % Initialize the "empty" panorama.
-panorama = uint8(zeros([height width 3]));
-
-blender = vision.AlphaBlender('Operation', 'Binary mask', ...
-    'MaskSource', 'Input port');
-
+panorama = zeros([height width 3]);
+weights = zeros([height width]);
+% blender = vision.AlphaBlender('Operation', 'Binary mask', ...
+%     'MaskSource', 'Input port');
+margin = 20;
+se = strel('square',30);
 % Create the panorama.
 for i = 1:numImages
 
@@ -169,15 +170,52 @@ for i = 1:numImages
     % Transform I into the panorama.
     warpedImage = imtransform(I, tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(size(I,3),1));
 
-    % Generate a binary mask.
+%%%%%%%%%%%%%%%%%%%%% Alpha blend %%%%%%%%%%%%%%%%%%%%%%%%%
+%     % Generate a binary mask.
+%     mask = imtransform(ones(size(I,1),size(I,2)), tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',0)>0;
+%     % Overlay the warpedImage onto the panorama.
+%     panorama = step(blender, panorama, warpedImage, mask);
+%%%%%%%%%%%%%%%%%%%%% sinple blend using distance %%%%%%%%%%%%%%%%%%%%%%%%%
     mask = imtransform(ones(size(I,1),size(I,2)), tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',0)>0;
+    dist1 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
+    dist1(1:margin,:) = 1;dist1(end-margin:end,:) = 1;dist1(:,1:margin) = 1;dist1(:,end-margin:end) = 1;
+    dist1 = bwdist(dist1,'chessboard');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
+    dist1 = imdilate(dist1,se);
+    dist1t=imtransform(dist1,tforms(i),'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
+    [panorama,weights] = simpleBlend(warpedImage, panorama, weights, mask, dist1t);
 
-    % Overlay the warpedImage onto the panorama.
-    panorama = step(blender, panorama, warpedImage, mask);
+%%%%%%%%%%%%%%%%%%%%% laplacian blend using distance %%%%%%%%%%%%%%%%%%%%%%%%%
+%     mask = ones(size(I,1),size(I,2))*1;
+%     mask = imtransform(mask, tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',0);
+%     mask((rgb2gray(panorama) ~= 0)&mask) = 1;
+%     panorama = laplacianBlend(warpedImage, panorama, mask);
 end
 
 figure
 imshow(panorama)
+
+function panorama = simpleBlend(im1, panorama, weights, mask, dist)
+    
+
+    if size(im1,3) == 1
+        panorama = combine(im1, panorama, mask, dist);
+    else
+        panorama(:,:,1) = combine(im1(:,:,1), panorama(:,:,1), mask, dist);
+        panorama(:,:,2) = combine(im1(:,:,2), panorama(:,:,2), mask, dist);
+        panorama(:,:,3) = combine(im1(:,:,3), panorama(:,:,3), mask, dist);
+    end
+end
+
+function im12 = combine(im1, im2, mask, dist)
+    im12 = im2;
+    mask12 = im12==0;
+    mask1 = mask12 & mask;
+    im12(mask1) = im1(mask1);
+    mask12 = im12~=0;
+    mask1 = mask12 & mask;
+    weight = dist(mask1)./(max(dist(mask1)));
+    im12(mask1) = uint8(weight.*double(im1(mask1))+(1-weight).*double(im12(mask1)));
+end
 
 function H = estimateTransformation(feature1,feature2,matches)
     ransac.pinlier = 0.99;
