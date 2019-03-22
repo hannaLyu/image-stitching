@@ -1,8 +1,14 @@
 clc;clear all;close all;
+
+% Change the current folder to the folder of this m-file.
+if(~isdeployed)
+  cd(fileparts(which(mfilename)));
+end
+
 % load an image
-im1 = imread('../data/hill/1.jpg');
-im2 = imread('../data/hill/2.jpg');
-im3 = imread('../data/hill/3.jpg');
+im1 = imread('../data/pier/1.jpg');
+im2 = imread('../data/pier/2.jpg');
+im3 = imread('../data/pier/3.jpg');
 
 
 % convert img from rgb to gray scale
@@ -86,39 +92,4 @@ end
 
 im12 = WarpAndBlend(result.params,im1,im2);
 figure;imshow(im12);
-
-% tic
-% ds2 = single(descriptor2);
-% ds1 = single(descriptor3);
-% kdtree = vl_kdtreebuild(ds2);
-% matches = zeros(size(descriptor3,2),2);
-% k = 1;
-% thresh = 2;
-% for i = 1:size(descriptor3,2)
-%     [index, distance] = vl_kdtreequery(kdtree, ds2, ds1(:,i), ...
-%                                        'NumNeighbors', 2, 'MaxComparisons', 15);
-%     if distance(1)*thresh > distance(2) continue; end
-%     matches(k,:) = [i,index(1)];
-%     k = k + 1;
-% end
-% matches(k:end,:) = [];
-% matches = matches';
-% toc
-% 
-% ransac.pinlier = 0.99;
-% ransac.estt_fun = @HestWithNormalization;%plane_estimation
-% ransac.eval_fun = @reprojectionError;%dist2plane
-% ransac.maxiter = 1e3;
-% ransac.threshold = 12;
-% ransac.inliers = [];
-% ransac.minimumset = 4;
-% 
-% x1h = tohomogeneous(feature3(1:2,matches(1,:)));
-% x2h = tohomogeneous(feature2(1:2,matches(2,:)));
-% result = ransac_routine_homo(x1h, x2h, ransac);
-% x1h = x1h(:,result.inliers);
-% x2h = x2h(:,result.inliers);
-% 
-% im123 = WarpAndBlend(result.params,im3,im12);
-% figure;imagesc(im123);
 
