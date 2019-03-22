@@ -21,11 +21,13 @@ function Out = WarpAndBlend(H,ImL,ImR)
     Maskavg = Mask1 & Mask2;
     Out = uint8(zeros(size(ImLH)));
 
-    dist1 = zeros(size(ImL,1),size(ImL,2));dist1(round(size(ImL,1)*0.5),round(size(ImL,2)*0.5)) = 1;
-    dist1 = bwdist(dist1,'chessboard');maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
+    dist1 = zeros(size(ImL,1),size(ImL,2));%dist1(round(size(ImL,1)*0.5),round(size(ImL,2)*0.5)) = 1;
+    dist1(1,:) = 1;dist1(end,:) = 1;dist1(:,1) = 1;dist1(:,end) = 1;
+    dist1 = bwdist(dist1,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
     
-    dist2 = zeros(size(ImR,1),size(ImR,2));dist2(round(size(ImR,1)*0.5),round(size(ImR,2)*0.5)) = 1;
-    dist2 = bwdist(dist2,'chessboard');maxdist = max(dist2(:));dist2 = (maxdist+1) - dist2;
+    dist2 = zeros(size(ImR,1),size(ImR,2));%dist2(round(size(ImR,1)*0.5),round(size(ImR,2)*0.5)) = 1;
+    dist2(1,:) = 1;dist2(end,:) = 1;dist2(:,1) = 1;dist2(:,end) = 1;
+    dist2 = bwdist(dist2,'euclidean');%maxdist = max(dist2(:));dist2 = (maxdist+1) - dist2;
 
     dist1t=imtransform(dist1,T,'XData',nX,'YData',nY,'FillValues',0);
     dist2t=imtransform(dist2,maketform('affine',eye(3)),'XData',nX,'YData',nY,'FillValues',0);
@@ -36,11 +38,11 @@ function Out = WarpAndBlend(H,ImL,ImR)
 %     Out = step(blender, ImLH, ImRH, Mask2);
 
     if size(ImL,3) == 1
-        Out = combine(ImLH, ImRH, Mask1, Mask2, Maskavg,dist1t,dist2t);
+        Out = combine(ImLH, ImRH, dist1t, dist2t);
     else
-        Out(:,:,1) = combine(ImLH(:,:,1), ImRH(:,:,1), Mask1, Mask2, Maskavg,dist1t,dist2t);
-        Out(:,:,2) = combine(ImLH(:,:,2), ImRH(:,:,2), Mask1, Mask2, Maskavg,dist1t,dist2t);
-        Out(:,:,3) = combine(ImLH(:,:,3), ImRH(:,:,3), Mask1, Mask2, Maskavg,dist1t,dist2t);
+        Out(:,:,1) = combine(ImLH(:,:,1), ImRH(:,:,1), dist1t, dist2t);
+        Out(:,:,2) = combine(ImLH(:,:,2), ImRH(:,:,2), dist1t, dist2t);
+        Out(:,:,3) = combine(ImLH(:,:,3), ImRH(:,:,3), dist1t, dist2t);
     end
 end
 
@@ -60,10 +62,13 @@ function imblend = poissonBlend(source,target,mask)
     
 end
 
-function im12 = combine(im1, im2, mask1, mask2, mask12,dist1,dist2)
-    im12 = uint8(zeros(size(im1)));
-    im12(mask1) = im1(mask1);
-    im12(mask2) = im2(mask2);
-    weight = dist1(mask12)./(dist1(mask12)+dist2(mask12));
-    im12(mask12) = uint8(weight.*double(im1(mask12))+(1-weight).*double(im2(mask12)));
+function im12 = combine(im1, im2, dist1,dist2)
+    weight1 = dist1./(max(dist1(:)));
+    weight2 = dist2./(max(dist2(:)));
+    weights = weight1 + weight2;
+    
+    im12 = weight1.*im2double(im1) + weight2.*im2double(im2);
+    im12 = im12 ./ weights;
+
+    im12 = uint8(255/(max(im12(:))-min(im12(:))).*(im12-min(im12(:))));
 end

@@ -1,13 +1,13 @@
 clc;clear all;close all;
 
-% imgpath = '../data/pier/';  
+imgpath = '../data/ledge/';  
 
 % Load images.
-% buildingScene = imageDatastore(imgpath);
+buildingScene = imageDatastore(imgpath);
 
 % Load images.
-buildingDir = fullfile(toolboxdir('vision'), 'visiondata', 'building');
-buildingScene = imageDatastore(buildingDir);
+% buildingDir = fullfile(toolboxdir('vision'), 'visiondata', 'building');
+% buildingScene = imageDatastore(buildingDir);
 
 % Display images to be stitched
 montage(buildingScene.Files);
@@ -176,13 +176,11 @@ for i = 1:numImages
 %     % Overlay the warpedImage onto the panorama.
 %     panorama = step(blender, panorama, warpedImage, mask);
 %%%%%%%%%%%%%%%%%%%%% sinple blend using distance %%%%%%%%%%%%%%%%%%%%%%%%%
-    mask = imtransform(ones(size(I,1),size(I,2)), tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',0)>0;
     dist1 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
     dist1(1:margin,:) = 1;dist1(end-margin:end,:) = 1;dist1(:,1:margin) = 1;dist1(:,end-margin:end) = 1;
-    dist1 = bwdist(dist1,'chessboard');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
-    dist1 = imdilate(dist1,se);
+    dist1 = bwdist(dist1,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
     dist1t=imtransform(dist1,tforms(i),'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
-    [panorama,weights] = simpleBlend(warpedImage, panorama, weights, mask, dist1t);
+    [panorama,weights] = simpleBlend(warpedImage, panorama, weights, dist1t);
 
 %%%%%%%%%%%%%%%%%%%%% laplacian blend using distance %%%%%%%%%%%%%%%%%%%%%%%%%
 %     mask = ones(size(I,1),size(I,2))*1;
@@ -190,31 +188,26 @@ for i = 1:numImages
 %     mask((rgb2gray(panorama) ~= 0)&mask) = 1;
 %     panorama = laplacianBlend(warpedImage, panorama, mask);
 end
-
+weights = weights + 1e-3;
+panorama = panorama ./ weights;
 figure
 imshow(panorama)
 
-function panorama = simpleBlend(im1, panorama, weights, mask, dist)
-    
-
+function [panorama,weights] = simpleBlend(im1, panorama, weights, dist)
+    weight = dist./(max(dist(:)));
+    weights = weights + weight;
     if size(im1,3) == 1
-        panorama = combine(im1, panorama, mask, dist);
+        panorama = combine(im1, panorama, weight);
     else
-        panorama(:,:,1) = combine(im1(:,:,1), panorama(:,:,1), mask, dist);
-        panorama(:,:,2) = combine(im1(:,:,2), panorama(:,:,2), mask, dist);
-        panorama(:,:,3) = combine(im1(:,:,3), panorama(:,:,3), mask, dist);
+        panorama(:,:,1) = combine(im1(:,:,1), panorama(:,:,1), weight);
+        panorama(:,:,2) = combine(im1(:,:,2), panorama(:,:,2), weight);
+        panorama(:,:,3) = combine(im1(:,:,3), panorama(:,:,3), weight);
     end
 end
 
-function im12 = combine(im1, im2, mask, dist)
+function im12 = combine(im1, im2, weight)
     im12 = im2;
-    mask12 = im12==0;
-    mask1 = mask12 & mask;
-    im12(mask1) = im1(mask1);
-    mask12 = im12~=0;
-    mask1 = mask12 & mask;
-    weight = dist(mask1)./(max(dist(mask1)));
-    im12(mask1) = uint8(weight.*double(im1(mask1))+(1-weight).*double(im12(mask1)));
+    im12 = im12 + weight.*im2double(im1);
 end
 
 function H = estimateTransformation(feature1,feature2,matches)
