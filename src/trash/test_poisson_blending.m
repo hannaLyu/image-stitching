@@ -11,11 +11,11 @@ imgpath = '../../data/poission_blending/';
 % Load images.
 buildingScene = imageDatastore(imgpath);
 
-im1 = readimage(buildingScene, 4);
-im2 = readimage(buildingScene, 10);
+im1 = readimage(buildingScene, 9);
+im2 = readimage(buildingScene, 18);
 
-im1=imresize(im1,1);
-im2=imresize(im2,1);
+im1=imresize(im1,0.8);
+im2=imresize(im2,0.8);
 
 
 % mask = uint8(ones(size(im1,1),size(im1,2)));
@@ -66,8 +66,8 @@ boundarydst = boundarydst ~= 0;
 A = precomputeA(bwdst, boundarydst);
 im1 = im2double(im1);
 im2 = im2double(im2);
-% source = (rgb2gray(im1));
-% target = (rgb2gray(im2));
+source = (rgb2gray(im1));
+target = (rgb2gray(im2));
 for i = 1:size(im1,3)   
     source = (im1(:,:,i));
     target = (im2(:,:,i));
@@ -139,20 +139,32 @@ function g = precomputeFlow(source,target,bwsrc,boundarysrc, bwdst, boundarydst,
     nnl = [row,col-1];n3 = nnl(:,2)>0;  
     nnr = [row,col+1];n4 = nnr(:,2)<=n; 
 
-    % boundary
-    nubint=n1;nubint(n1) = boundarydst((nnu(n1,2)-1).*m+nnu(n1,1)) == 1;
-    ndbint=n2;ndbint(n2) = boundarydst((nnd(n2,2)-1).*m+nnd(n2,1)) == 1;
-    nlbint=n3;nlbint(n3) = boundarydst((nnl(n3,2)-1).*m+nnl(n3,1)) == 1;
-    nrbint=n4;nrbint(n4) = boundarydst((nnr(n4,2)-1).*m+nnr(n4,1)) == 1;
-
-    % for target
+    % 
     g1 = target(int);
-    vpq1 = A*g1;
-   
-    vpq1(nubint) = vpq1(nubint) - target((nnu(nubint,2)-1).*m+nnu(nubint,1));
-    vpq1(ndbint) = vpq1(ndbint) - target((nnd(ndbint,2)-1).*m+nnd(ndbint,1));
-    vpq1(nlbint) = vpq1(nlbint) - target((nnl(nlbint,2)-1).*m+nnl(nlbint,1)); 
-    vpq1(nrbint) = vpq1(nrbint) - target((nnr(nrbint,2)-1).*m+nnr(nrbint,1));
+    g1u = zeros(length(g1),1);
+    g1u(n1) = g1(n1) - target((nnu(n1,2)-1).*m+nnu(n1,1));
+    
+    g1d = zeros(length(g1),1);
+    g1d(n2) = g1(n2) - target((nnd(n2,2)-1).*m+nnd(n2,1));
+    
+    g1l = zeros(length(g1),1);
+    g1l(n3) = g1(n3) - target((nnl(n3,2)-1).*m+nnl(n3,1));
+    
+    g1r = zeros(length(g1),1);
+    g1r(n4) = g1(n4) - target((nnr(n4,2)-1).*m+nnr(n4,1));
+    
+%     % boundary
+%     nubint=n1;nubint(n1) = boundarydst((nnu(n1,2)-1).*m+nnu(n1,1)) == 1;
+%     ndbint=n2;ndbint(n2) = boundarydst((nnd(n2,2)-1).*m+nnd(n2,1)) == 1;
+%     nlbint=n3;nlbint(n3) = boundarydst((nnl(n3,2)-1).*m+nnl(n3,1)) == 1;
+%     nrbint=n4;nrbint(n4) = boundarydst((nnr(n4,2)-1).*m+nnr(n4,1)) == 1;
+    % for target
+%     g1 = target(int);
+% %     vpq1 = A*g1;
+%     vpq1(nubint) = vpq1(nubint) - target((nnu(nubint,2)-1).*m+nnu(nubint,1));
+%     vpq1(ndbint) = vpq1(ndbint) - target((nnd(ndbint,2)-1).*m+nnd(ndbint,1));
+%     vpq1(nlbint) = vpq1(nlbint) - target((nnl(nlbint,2)-1).*m+nnl(nlbint,1)); 
+%     vpq1(nrbint) = vpq1(nrbint) - target((nnr(nrbint,2)-1).*m+nnr(nrbint,1));
 
     % vpq
     int2 = xor(bwsrc, boundarysrc);
@@ -167,21 +179,42 @@ function g = precomputeFlow(source,target,bwsrc,boundarysrc, bwdst, boundarydst,
     nnr2 = [row2,col2+1];n4 = nnr2(:,2)<=size(bwsrc,2); 
 
     m2 = size(bwsrc,1);
+    
+    g2u = zeros(length(g2),1);
+    g2u(n1) = g2(n1) - source((nnu2(n1,2)-1).*m2+nnu2(n1,1));
+    
+    g2d = zeros(length(g2),1);
+    g2d(n2) = g2(n2) - source((nnd2(n2,2)-1).*m2+nnd2(n2,1));
+    
+    g2l = zeros(length(g2),1);
+    g2l(n3) = g2(n3) - source((nnl2(n3,2)-1).*m2+nnl2(n3,1));
+    
+    g2r = zeros(length(g2),1);
+    g2r(n4) = g2(n4) - source((nnr2(n4,2)-1).*m2+nnr2(n4,1));
+    
+% 
+%     nubint2=n1;nubint2(n1) = boundarysrc((nnu2(n1,2)-1).*m2+nnu2(n1,1)) == 1;
+%     ndbint2=n2;ndbint2(n2) = boundarysrc((nnd2(n2,2)-1).*m2+nnd2(n2,1)) == 1;
+%     nlbint2=n3;nlbint2(n3) = boundarysrc((nnl2(n3,2)-1).*m2+nnl2(n3,1)) == 1;
+%     nrbint2=n4;nrbint2(n4) = boundarysrc((nnr2(n4,2)-1).*m2+nnr2(n4,1)) == 1;
+% 
+%     vpq2(nubint2) = vpq2(nubint2) - source((nnu2(nubint2,2)-1).*m2+nnu2(nubint2,1));
+%     vpq2(ndbint2) = vpq2(ndbint2) - source((nnd2(ndbint2,2)-1).*m2+nnd2(ndbint2,1));
+%     vpq2(nlbint2) = vpq2(nlbint2) - source((nnl2(nlbint2,2)-1).*m2+nnl2(nlbint2,1)); 
+%     vpq2(nrbint2) = vpq2(nrbint2) - source((nnr2(nrbint2,2)-1).*m2+nnr2(nrbint2,1));
 
-    nubint2=n1;nubint2(n1) = boundarysrc((nnu2(n1,2)-1).*m2+nnu2(n1,1)) == 1;
-    ndbint2=n2;ndbint2(n2) = boundarysrc((nnd2(n2,2)-1).*m2+nnd2(n2,1)) == 1;
-    nlbint2=n3;nlbint2(n3) = boundarysrc((nnl2(n3,2)-1).*m2+nnl2(n3,1)) == 1;
-    nrbint2=n4;nrbint2(n4) = boundarysrc((nnr2(n4,2)-1).*m2+nnr2(n4,1)) == 1;
-
-    vpq2(nubint2) = vpq2(nubint2) - source((nnu2(nubint2,2)-1).*m2+nnu2(nubint2,1));
-    vpq2(ndbint2) = vpq2(ndbint2) - source((nnd2(ndbint2,2)-1).*m2+nnd2(ndbint2,1));
-    vpq2(nlbint2) = vpq2(nlbint2) - source((nnl2(nlbint2,2)-1).*m2+nnl2(nlbint2,1)); 
-    vpq2(nrbint2) = vpq2(nrbint2) - source((nnr2(nrbint2,2)-1).*m2+nnr2(nrbint2,1));
-
-    id = abs(vpq1) > abs(vpq2);
-    g = vpq2;%vpq2*0.5+vpq1*0.5;
+%     id = abs(vpq1) > abs(vpq2);
+%     g = vpq2;%vpq2*0.5+vpq1*0.5;
 %     g(id) = vpq1(id);
     %
+    
+    %% mixed
+    id  = abs(g1u) > abs(g2u);gmu = g2u;gmu(id) = g1u(id);
+    id  = abs(g1d) > abs(g2d);gmd = g2d;gmd(id) = g1d(id);
+    id  = abs(g1l) > abs(g2l);gml = g2l;gml(id) = g1l(id);
+    id  = abs(g1r) > abs(g2r);gmr = g2r;gmr(id) = g1r(id);
+
+    g = gmu + gmd + gml + gmr;
 end
 
 function imblend = poissonBlend(source,target,bwsrc,boundarysrc, bwdst, boundarydst, A, g)
