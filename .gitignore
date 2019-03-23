@@ -22,3 +22,5 @@ src/precompute/test.m
 src/precompute/test.mat
 
 docs/texfile/normalization.m
+
+*.m~
