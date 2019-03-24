@@ -31,6 +31,8 @@ figure;imshow(imshow1);hold on;
 plot(corner1(:,2),corner1(:,1), 'ro','MarkerSize',3);
 plot(corner2(:,2)+size(I1,2),corner2(:,1), 'bo','MarkerSize',3);
 
+matchingpairs = matchingpairs(~isinf(matchingpairs(:,2)),:);
+
 shift = size(I1,2);
 cmap = jet(32);
 k = 1;
@@ -74,8 +76,10 @@ for i = 1:size(inlierId,2)
 end
 
 %stitching
+inlier1(1:2,:) = flipud(inlier1(1:2,:));
+inlier2(1:2,:) = flipud(inlier2(1:2,:));
 H =Hrecacl(inlier1,inlier2);
-I3 = WarpNViewMod(H,I1,I2);
+I3 = WarpAndBlend(H,I1,I2);
 figure
 imshow(I3);
 
