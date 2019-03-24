@@ -11,8 +11,8 @@ imgpath = '../../data/poission_blending/';
 % Load images.
 buildingScene = imageDatastore(imgpath);
 
-im1 = readimage(buildingScene, 9);
-im2 = readimage(buildingScene, 18);
+im1 = readimage(buildingScene, 10);
+im2 = readimage(buildingScene, 20);
 
 im1=imresize(im1,0.8);
 im2=imresize(im2,0.8);
