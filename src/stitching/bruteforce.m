@@ -7,8 +7,14 @@ function varargout = bruteforce(descriptor1, descriptor2)
             descriptor1rep = repmat(descriptor1(i,:),n2,1);
             despxor = xor(descriptor1rep,descriptor2);
             despxor = sum(despxor,2);
-            [~,id] = min(despxor);
-                matching_pairs(i,:) = [i, id];
+%             [~,id] = min(despxor);
+%             matching_pairs(i,:) = [i, id];
+            [val, id] = sort(despxor,'ascend');
+            if val(1) < 0.7 * val(2)
+                matching_pairs(i,:) = [i, id(1)];
+            else
+                matching_pairs(i,:) = [i, inf];
+            end
         end
        
     varargout{1} = matching_pairs;
