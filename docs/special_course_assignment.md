@@ -103,14 +103,14 @@
 
 ### Assignment
 
-1. extract features, matching, use DLT for homography estimation;
-2. use RANSAC to find inliers and outliers;
-3. image warping;
+1. ~~extract features, matching, use DLT for homography estimation;~~
+2. ~~use RANSAC to find inliers and outliers;~~
+3. ~~image warping;~~
 
 ### Reading material
 
-1. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_3-estimating-homographies-from-feature-correspondences.pdf
-2. https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_6_1_basic_epipolar-geometry.pdf
+1. ~~https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_4_3-estimating-homographies-from-feature-correspondences.pdf~~
+2. ~~https://www.uio.no/studier/emner/matnat/its/UNIK4690/v16/forelesninger/lecture_6_1_basic_epipolar-geometry.pdf~~
 
 ## week-7 & 8
 
@@ -143,3 +143,6 @@
 ## week-11-13
 
 report writing.
+
+### Reading material
+[image stiching](https://web.stanford.edu/class/cs231m/lectures/lecture-5-stitching-blending.pdf)
