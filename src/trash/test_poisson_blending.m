@@ -11,11 +11,11 @@ imgpath = '../../data/poission_blending/';
 % Load images.
 buildingScene = imageDatastore(imgpath);
 
-im1 = readimage(buildingScene, 10);
-im2 = readimage(buildingScene, 20);
+im1 = readimage(buildingScene, 9);
+im2 = readimage(buildingScene, 19);
 
-im1=imresize(im1,0.8);
-im2=imresize(im2,0.8);
+% im1=imresize(im1,0.8);
+% im2=imresize(im2,0.8);
 
 
 % mask = uint8(ones(size(im1,1),size(im1,2)));
@@ -92,7 +92,6 @@ end
 function A = precomputeA(bwdst, boundarydst)
     int = xor(bwdst, boundarydst);
     N = sum(int(:));
-    A = sparse(N,N);
 
     m = size(bwdst,1);
     n = size(bwdst,2);
@@ -107,24 +106,66 @@ function A = precomputeA(bwdst, boundarydst)
     
     Np = double(n1) + double(n2) + double(n3) + double(n4);
 
-    id1 = 1:1:N;
+%     A = sparse(N,N);
+%     for i = 1:N
+%         A(i,i) = Np(i);
+%         if nuint(i) == 1
+%             A(i,(map1((nnu(i,2)-1).*m+nnu(i,1)))) = -1;
+%         end
+%         if ndint(i) == 1
+%             A(i,(map1((nnd(i,2)-1).*m+nnd(i,1)))) = -1;
+%         end
+%         if nlint(i) == 1
+%             A(i,(map1((nnl(i,2)-1).*m+nnl(i,1)))) = -1;
+%         end
+%         if nrint(i) == 1
+%             A(i,(map1((nnr(i,2)-1).*m+nnr(i,1)))) = -1;
+%         end
+%     end
+%     A = sparse(A);
 
-    for i = 1:N
-        A(i,i) = Np(i);
-        if nuint(i) == 1
-            A(i,(map1((nnu(i,2)-1).*m+nnu(i,1)))) = -1;
-        end
-        if ndint(i) == 1
-            A(i,(map1((nnd(i,2)-1).*m+nnd(i,1)))) = -1;
-        end
-        if nlint(i) == 1
-            A(i,(map1((nnl(i,2)-1).*m+nnl(i,1)))) = -1;
-        end
-        if nrint(i) == 1
-            A(i,(map1((nnr(i,2)-1).*m+nnr(i,1)))) = -1;
-        end
-    end
-    A = sparse(A);
+    A1 = sparse(N,N);
+    id = 1:N;id1 = id - 1;
+    A1(id1.*N+id) = Np;
+    A2 = sparse(id(nuint), map1((nnu(nuint,2)-1).*m+nnu(nuint,1)), -1*ones(sum(nuint),1), N,N);
+    A3 = sparse(id(ndint), map1((nnd(ndint,2)-1).*m+nnd(ndint,1)), -1*ones(sum(ndint),1), N,N);
+    A4 = sparse(id(nlint), map1((nnl(nlint,2)-1).*m+nnl(nlint,1)), -1*ones(sum(nlint),1), N,N);
+    A5 = sparse(id(nrint), map1((nnr(nrint,2)-1).*m+nnr(nrint,1)), -1*ones(sum(nrint),1), N,N);
+%     A1(id1(nuint).*N+map1((nnu(nuint,2)-1).*m+nnu(nuint,1))) = -1;
+%     A1(id1(ndint).*N+map1((nnd(ndint,2)-1).*m+nnd(ndint,1))) = -1;
+%     A1(id1(nlint).*N+map1((nnl(nlint,2)-1).*m+nnl(nlint,1))) = -1;
+%     A1(id1(nrint).*N+map1((nnr(nrint,2)-1).*m+nnr(nrint,1))) = -1;
+    A = A1 + A2 + A3 + A4 + A5;
+
+%     A1 = spdiags([Np -1*ones(N,1) -1*ones(N,1) -1*ones(N,1) -1*ones(N,1)],[0,-1,1,-m,m],N,N);
+%     id = [find(~nuint);find(~ndint);find(~nlint);find(~nrint)];
+%     for i = 1:length(id)
+%         colid = find(A1(id(i),:));
+%         colid(colid == id(i)) = [];
+%         valid = nuint(colid) | ndint(colid) | nlint(colid) | nrint(colid);
+%         A1(id(i),colid(~valid)) = 0;
+%     end
+    
+%     id = find(~ndint);
+%     for i = 1:length(id)
+%         if id(i)+1 <= N
+%             A(id(i),id(i)+1) = 0;
+%         end
+%     end
+% 
+%     id = find(~nlint);
+%     for i = 1:length(id)
+%         if id(i)-m > 0
+%             A(id(i),id(i)-m) = 0;
+%         end
+%     end
+%     
+%     id = find(~nrint);
+%     for i = 1:length(id)
+%         if id(i)+m <= N
+%             A(id(i),id(i)+m) = 0;
+%         end
+%     end
 end
 
 function g = precomputeFlow(source,target,bwsrc,boundarysrc, bwdst, boundarydst, A)
