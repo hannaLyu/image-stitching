@@ -146,3 +146,5 @@ report writing.
 
 ### Reading material
 [image stiching](https://web.stanford.edu/class/cs231m/lectures/lecture-5-stitching-blending.pdf)
+
+[cmu cuda based image stiching](https://github.com/zq-chen/ParaPano)
