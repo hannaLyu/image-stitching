@@ -27,3 +27,5 @@ docs/texfile/normalization.m
 src/3rdparty/*.zip
 src/3rdparty/ukf_orientation_estimation-master
 data/fusion/cam10.mat
+data/fusion/cam8.mat
+data/fusion/cam11.mat
