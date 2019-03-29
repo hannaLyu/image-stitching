@@ -2,6 +2,11 @@ clc;clear all;close all;
 
 imgpath = '../data/ledge/';  
 
+addpath ./common/
+addpath ./precompute/
+addpath ./robustestimation/
+addpath ./homography/
+
 % Load images.
 buildingScene = imageDatastore(imgpath);
 

@@ -8,7 +8,7 @@ end
 %% 1st load data
 idx = 8;
 
-datadir = 'C:/Users/xiahaa/Documents/DTU/projectbank/image-stitching/data/fusion';
+datadir = '../data/fusion';
 
 % imu_prefix = strcat(datadir,'/imu/imuRaw');
 % vicon_prefix = '/vicon/viconRot';
