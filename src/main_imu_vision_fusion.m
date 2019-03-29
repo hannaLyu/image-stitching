@@ -123,7 +123,7 @@ for i = 2:size(imgs,4)
 
     %% last imu
     prevImu = euler_to_rot(gyro_euler(3,imu_idx),gyro_euler(2,imu_idx),gyro_euler(1,imu_idx));
-    
+    prevTime = imu_ts(imu_idx);
     %% new imu_index
     imu_idx = findnn(imu_ts, imu_idx, img_ts(i));
     if imu_idx >= length(imu_ts)
@@ -132,6 +132,7 @@ for i = 2:size(imgs,4)
     
     %% new imu
     Rimu = euler_to_rot(gyro_euler(3,imu_idx),gyro_euler(2,imu_idx),gyro_euler(1,imu_idx));
+    imuTime = imu_ts(imu_idx);
     
     %% if do homography estimation
     if doHomo == 1 || doHomo == 2
@@ -213,6 +214,7 @@ for i = 2:size(imgs,4)
             H1 = Homos(:,:,i);
             H1 = H1./H1(3,3);
             H1 = normalization_homography(H1);
+            R2 = [];
             [R2,t2,n2] = homo_decom_malis(H1);
             
             % delta rotation from last camera to current camera measured by
@@ -220,22 +222,35 @@ for i = 2:size(imgs,4)
             dRimu = Ric'*Rimu'*prevImu*Ric;
             
             % find the most correct one
+            minval = 1e6;
             minval = rot_err(dRimu,R2(:,:,1));
             minid = 1;
-            for ii = 1:size(R2,3)
+            minR = R2(:,:,1);
+            for ii = 2:size(R2,3)
                 err = rot_err(dRimu,R2(:,:,ii));
                 if err < minval
                     minval = err;
                     minid = ii;
+                    minR = R2(:,:,ii);
                 end
             end
+%             disp(minval);
+%             disp(minid)
+%             minvals(i) = minval;
             if minval > 0.1
                 wrong = wrong + 1;
                 disp(wrong);
                 Rvision(:,:,i) = Rimu;
+                minRvs(:,:,i) = dRimu;
+                minRv_ts(i) = img_ts(i);
             else
 %             Rvision(:,:,i) = prevImu;
-                Rvision(:,:,i) = Rvision(:,:,i-1) * ( Ric*R2(:,:,minid)' * Ric');
+%                 minRvs(:,:,i) = minR;
+%                 minRv_ts(i) = img_ts(i);
+%                 minRis(:,:,i) = dRimu;
+                dR = fusionVisionInertial(minR, dRimu, img_ts(i)-img_ts(i-1));
+
+                Rvision(:,:,i) = Rvision(:,:,i-1) * (Ric * dR' * Ric');%Rvision(:,:,i-1) * (Ric * R2(:,:,minid)' * Ric')';
             end
         else
             Rvision(:,:,i) = Rimu;
@@ -245,6 +260,30 @@ for i = 2:size(imgs,4)
     img1d = single(rgb2gray(img1));
 end
 
+save('vision_meas.mat','Rvision');
+
+% n = size(minRvs,3);
+% homo_euler = zeros(3,n);
+% homo_euler2 = zeros(3,n);
+% for i = 1:1:n
+%     [r,p,y] = rot_to_euler(minRvs(:,:,i));
+%     homo_euler(:,i) = [r;p;y];
+%     [r,p,y] = rot_to_euler(minRis(:,:,i));
+%     homo_euler2(:,i) = [r;p;y];
+% end
+% figure;
+% subplot(3,1,1);
+% plot(homo_euler(1,:));hold on;grid on;
+% plot(homo_euler2(1,:));
+% legend({'SO3','Vision'},'FontName','Arial','FontSize',10);
+% title('Attitude Estimation','FontName','Arial','FontSize',20);grid on;
+% subplot(3,1,2);plot(homo_euler(2,:));hold on;
+% plot(homo_euler2(2,:));grid on;
+% subplot(3,1,3);plot(homo_euler(3,:));hold on;
+% plot(homo_euler2(3,:));grid on;
+
+
+
 n = size(Rvision,3);
 vision_euler = zeros(3,n);
 for i = 1:1:n
@@ -252,23 +291,43 @@ for i = 1:1:n
     vision_euler(:,i) = [r;p;y];
 end
 figure;
-subplot(3,1,1);plot(imu_ts, gyro_euler(1,:));hold on;
-plot(img_ts, vision_euler(1,:));
-plot(vicon_ts, vicon_euler(1,:));
+subplot(3,1,1);plot(imu_ts, gyro_euler(1,:),'r-');hold on;
+plot(img_ts, vision_euler(1,:),'g-');
+plot(vicon_ts, vicon_euler(1,:),'b-');
 legend({'SO3','Vision','VICON'},'FontName','Arial','FontSize',10);
 title('Attitude Estimation','FontName','Arial','FontSize',20);grid on;
-subplot(3,1,2);plot(imu_ts, gyro_euler(2,:));hold on;plot(img_ts, vision_euler(2,:));grid on;
-plot(vicon_ts, vicon_euler(2,:));
-subplot(3,1,3);plot(imu_ts, gyro_euler(3,:));hold on;plot(img_ts, vision_euler(3,:));grid on;
-plot(vicon_ts, vicon_euler(3,:));
+subplot(3,1,2);plot(imu_ts, gyro_euler(2,:),'r-');hold on;plot(img_ts, vision_euler(2,:),'g-');grid on;
+plot(vicon_ts, vicon_euler(2,:),'b-');
+subplot(3,1,3);plot(imu_ts, gyro_euler(3,:),'r-');hold on;plot(img_ts, vision_euler(3,:),'g-');grid on;
+plot(vicon_ts, vicon_euler(3,:),'b-');
 
 
 if doHomo == 1
     save('homo.mat','Homos','flags');
 end
 
+
+function dR = fusionVisionInertial(dRv, dRi, dT)
+    so3i = logm(dRv'*dRi);
+    wi = ([-so3i(2,3);so3i(1,3);-so3i(1,2)]);
+    wi = wi.*[-1;1;-1];
+    fskew = @(x) ([0 -x(3) x(2);x(3) 0 -x(1);-x(2) x(1) 0]);
+    kp = 1.5;
+    dt = dT;
+    so3 = fskew((wi * kp));
+    dR = dRi*expm(so3.*dt);%% dt: integration time
+    RtR = (dR)'*(dR);
+    E = RtR - eye(3);
+    if max(abs(E)) > 1e-6
+        %% orthogonization
+        [U, ~, V] = svd(dR); 
+        dR = U*V';
+        if det(dR)<0, dR = U*diag([1 1 -1])*V'; end 
+    end
+end
+
 function err = rot_err(R1,R2)
-    e1 = logm(R1'*R2);
+    e1 = logm(R2*R1');
     err = norm([-e1(2,3);e1(1,3);-e1(1,2)]);
 end
 
@@ -422,6 +481,9 @@ function varargout = homo_decom_malis(varargin)
     R(:,:,1) = H*(eye(3)-2/vscalar*tas*na');
     R(:,:,2) = H*(eye(3)-2/vscalar*tbs*nb');
     
+    R(:,:,1) = projectOnSO3(R(:,:,1));
+    R(:,:,2) = projectOnSO3(R(:,:,2));
+    
     t(:,1) = R(:,:,1)*tas;
     t(:,2) = R(:,:,2)*tbs;
     
@@ -457,6 +519,17 @@ function varargout = homo_decom_malis(varargin)
     varargout{1} = Rf;
     varargout{2} = tf;
     varargout{3} = nf;
+end
+
+function R = projectOnSO3(R)
+    RtR = (R)'*(R);
+    E = RtR - eye(3);
+    if max(abs(E)) > 1e-6
+        %% orthogonization
+        [U, ~, V] = svd(R); 
+        R = U*V';
+        if det(R)<0, R = U*diag([1 1 -1])*V'; end 
+    end
 end
 
 function s = signc(a)
