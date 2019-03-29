@@ -30,3 +30,10 @@ data/fusion/cam10.mat
 data/fusion/cam8.mat
 data/fusion/cam11.mat
 *.avi
+docs/texfile/build/*.aux
+docs/texfile/build/*.aux
+docs/texfile/build/*.log
+docs/texfile/build/*.out
+docs/texfile/build/*.pdf
+docs/texfile/build/*.synctex.gz
+docs/texfile/build/*.m
