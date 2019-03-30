@@ -1,18 +1,23 @@
 
-clc;clear;
+clc;clear ;
 % corner detection
 I1=imread('1.jpg');
 I2=imread('2.jpg');
 [s11,s12,s13] = size(I1);
 [s21,s22,s23] = size(I2);
 
-if s11 * s12 ~= s21*s22
-    if s11*s12<s21*s22
-        I2 = imresize(I2,[s11,s12]);
-    else
-        I1 = imresize(I1,[s21,s22]);
-    end
-end
+
+I1=imresize(I1,[300,400]);
+I2=imresize(I2,[300,400]);
+
+
+% if s11 * s12 ~= s21*s22
+%     if s11*s12<s21*s22
+%         I2 = imresize(I2,[s11,s12]);
+%     else
+%         I1 = imresize(I1,[s21,s22]);
+%     end
+% end
 
 im1gray = rgb2gray(I1);
 im2gray=rgb2gray(I2);

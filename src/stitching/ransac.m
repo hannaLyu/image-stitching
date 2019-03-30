@@ -8,7 +8,7 @@ sigma =6;
 pretotal=0;
 itereal=1e3;
 while iter<itereal
-    idx1 = randperm(number1,mini);
+    idx1 = randperm(number1,4);
     x1 = X1(:,idx1);
     [T1,x1h] = normalization(x1);
 %     idx2 = randperm(number2,mini);

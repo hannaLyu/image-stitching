@@ -1,6 +1,6 @@
 function descriptor = extractdes(im,corner,patten)
- [M,N] = size(im);
-  g = fspecial('gaussian', [3,1], 1);
+    [M,N] = size(im);
+    g = fspecial('gaussian', [3,1], 1);
     I = imfilter(im,g,'replicate');
     I = imfilter(im,g','replicate');
         descriptor = zeros(size(corner,1), size(patten,2),'logical');
@@ -14,14 +14,15 @@ function descriptor = extractdes(im,corner,patten)
         v2 = corner(i,2) + patten(4,:);
         
         % out of border, skip
-        invalid1 = find(u1 < 0 | u1 > M | v1 < 0 | v1 > N,1);
-        invalid2 = find(u2 < 0 | u2 > M | v2 < 0 | v2 > N,1);
+        invalid1 = find(u1 < 1 | u1 > M | v1 < 1 | v1 > N,1);
+        invalid2 = find(u2 < 1 | u2 > M | v2 < 1 | v2 > N,1);
+
         if isempty(invalid1) && isempty(invalid2)
             ind1 = sub2ind([M,N],u1,v1);
             ind2 = sub2ind([M,N],u2,v2);
         else
             continue;
-%             error('sss');
+              error('sss');
         end
         desp1 = im(ind1)';
         desp2 = im(ind2)';

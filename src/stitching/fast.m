@@ -49,7 +49,8 @@ for i = 4:m-3
 end
 
  [mm,nn]=size(result);
-result = result(:,1:nn/3); 
+ result = result(:,1:nn); 
+% result = result(:,1:nn/3); 
 a=0;
 corner = zeros(mm*nn,2);
 [M,N]=size(result);
@@ -66,8 +67,8 @@ end
 
 
 corner(a+1:end,:)=[];
-imshow(img);
-hold on
-plot(corner(:,2),corner(:,1),'o');
+% imshow(img);
+% hold on
+% plot(corner(:,2),corner(:,1),'o');
 end
 
