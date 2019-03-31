@@ -17,7 +17,7 @@ imu_prefix = strcat(datadir,'/imuRaw');
 vicon_prefix = strcat(datadir,'/viconRot');
 cam_prefix = strcat(datadir,'/cam');
 
-useVisionFusion = 1;
+useVisionFusion = 0;
 useIMUFusion = 1;
 
     if useVisionFusion == 0 
@@ -74,10 +74,10 @@ useIMUFusion = 1;
         if ~isempty(vicon_ts)
             figure;
             subplot(3,1,1);plot(imu_ts-imu_ts(1), gyro_euler(1,:));hold on;
-            plot(vicon_ts-vicon_ts(1), vicon_euler(1,:));legend({'SO3','VICON'},'FontName','Arial','FontSize',10);
+            plot(vicon_ts-imu_ts(1), vicon_euler(1,:));legend({'SO3','VICON'},'FontName','Arial','FontSize',10);
             title('Attitude Estimation','FontName','Arial','FontSize',20);grid on;
-            subplot(3,1,2);plot(imu_ts-imu_ts(1), gyro_euler(2,:));hold on;plot(vicon_ts-vicon_ts(1), vicon_euler(2,:));grid on;
-            subplot(3,1,3);plot(imu_ts-imu_ts(1), gyro_euler(3,:));hold on;plot(vicon_ts-vicon_ts(1), vicon_euler(3,:));grid on;
+            subplot(3,1,2);plot(imu_ts-imu_ts(1), gyro_euler(2,:));hold on;plot(vicon_ts-imu_ts(1), vicon_euler(2,:));grid on;
+            subplot(3,1,3);plot(imu_ts-imu_ts(1), gyro_euler(3,:));hold on;plot(vicon_ts-imu_ts(1), vicon_euler(3,:));grid on;
         end
         figure;
         subplot(3,1,1);plot(imu_ts-imu_ts(1), acc_truth(1,:));hold on;plot(imu_ts-imu_ts(1), acc_estimate(1,:));grid on;
