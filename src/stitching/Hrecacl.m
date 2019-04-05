@@ -14,7 +14,8 @@ A(2:2:2*number,:)=pre2;
 
  [U,S,V] = svd(A);
 h=transpose(V(:,end));
+% h=h./h(9);
 H=[h(1,1:3);h(1,4:6);h(1,7:9)];
-
+H=H./H(3,3);
 end
 
