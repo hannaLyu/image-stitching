@@ -54,6 +54,7 @@ for i = 1:size(pairs,1)
     matchingpair=transpose(matchingpair);
     seq.matchingpair{i}=matchingpair;
 end
+
 %ransac
 seq.matchpoints=cell(numImages,1);
 seq.inlier1=cell(numImages,1);
@@ -144,17 +145,19 @@ for i = 1:size(seq.inlierId{3,1},2)
     end
 end
 
-
-
 %find H Matrix
 seq.H=cell(numImages,1);
-seq.tform=cell(numImages,1);
-seq.T=cell(numImages,1);
+
+
 for i=1:numImages
-seq.H{i} =Hrecacl(seq.inlier1{i},seq.inlier2{i});
+seq.inlier1{i}(1:2,:)=flipud(seq.inlier1{i}(1:2,:));
+seq.inlier2{i}(1:2,:)=flipud(seq.inlier2{i}(1:2,:));
+H =Hrecacl(seq.inlier1{i},seq.inlier2{i});
+seq.H{i}=H;
 end
 
 % check answer
+
 I1 = WarpAndBlend(seq.H{1},seq.imgs{1},seq.imgs{2});
 subplot(2,2,1);
 imshow(I1);
@@ -165,21 +168,66 @@ subplot(2,2,3);
 I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
 imshow(I3);
 
-
 % compute out put limits for each transform
+seq.tform=cell(numImages,1);
+seq.T=cell(numImages,1);
 for i = 1:numel(seq.H)
     H=seq.H{i};
     img=seq.imgs{i};
     tform = maketform('projective',H);
     [B,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
-    seq.tform{i}=tform;
+    tforms(i)=tform;
 end
+
+
 % find center image
 avgXLim = mean(xlim, 2);
 [~, idx] = sort(avgXLim);
 centerIdx = floor((numel(seq.tform)+1)/2);
 centerImageIdx = idx(centerIdx);
-for m=2:numImages
-    seq.T{1}=seq.H{1};
-    seq.T{m} = seq.H{m} * seq.H{m-1};
+
+%recompute
+Tinv=inv(tforms(centerImageIdx).tdata.T);
+for i = 1:numel(tforms)
+img=seq.imgs{i};
+    tforms(i).tdata.T = tforms(i).tdata.T * Tinv;
+     [~,xlim(i,:),ylim(i,:)] = imtransform(img,tforms(i)); 
 end
+
+maxImageSize = max(imageSize);
+
+% Find the minimum and maximum output limits
+xMin = min([1; xlim(:)]);
+xMax = max([maxImageSize(2); xlim(:)]);
+
+yMin = min([1; ylim(:)]);
+yMax = max([maxImageSize(1); ylim(:)]);
+blender = vision.AlphaBlender('Operation', 'Binary mask', ...
+    'MaskSource', 'Input port');
+% Create a 2-D spatial reference object defining the size of the panorama.
+xLimits = [xMin xMax];
+yLimits = [yMin yMax];
+
+% Width and height of panorama.
+width  = round(xMax - xMin);
+height = round(yMax - yMin);
+
+% Initialize the "empty" panorama.
+
+panorama = zeros([height width 3] ,'like', I);
+
+
+% Create the panorama.
+for i = 1:numImages
+
+    I = readimage(buildingScene, i);
+
+    % Transform I into the panorama.
+    warpedImage = imtransform(I, tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(size(I,3),1));
+    mask = imtransform(zeros(imageSize(1,1),imageSize(1,2)), tforms(1), 'XData',xLimits,'YData',yLimits);
+    panorama = step(blender, panorama, warpedImage, mask);
+
+end
+
+figure
+imshow(panorama);
