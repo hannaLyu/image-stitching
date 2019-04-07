@@ -1,6 +1,6 @@
 clc;clear;
 figure;hold on;
-imgpath = 'M:\Documents\stitching\stitching\hill\hill';  
+imgpath = '../../data/hill';  
 buildingScene = imageDatastore(imgpath);
 montage(buildingScene.Files);
 hold on;
@@ -154,16 +154,36 @@ for i=1:numImages
 seq.inlier1{i}(1:2,:)=flipud(seq.inlier1{i}(1:2,:));
 seq.inlier2{i}(1:2,:)=flipud(seq.inlier2{i}(1:2,:));
 H =Hrecacl(seq.inlier1{i},seq.inlier2{i});
-seq.H{i}=H;
+seq.H{i}=inv(H);
 end
 
 % check answer based on img1
 
-I1 = WarpAndBlend(seq.H{1},seq.imgs{1},seq.imgs{2});
+% Compute the output limits  for each transform
+[~,xlim(1,:),ylim(1,:)]=imtransform(zeros(size(seq.imgs{2},1),size(seq.imgs{2},2)),maketform('projective',eye(3)'));
+[~,xlim(2,:),ylim(2,:)]=imtransform(zeros(size(seq.imgs{2},1),size(seq.imgs{2},2)),maketform('projective',seq.H{1}'));
+[~,xlim(3,:),ylim(3,:)]=imtransform(zeros(size(seq.imgs{3},1),size(seq.imgs{3},2)),maketform('projective',seq.H{2}'));
+xMin = min([1; xlim(:)]);
+xMax = max(xlim(:));
+
+yMin = min([1; ylim(:)]);
+yMax = max(ylim(:));
+
+% Create a 2-D spatial reference object defining the size of the panorama.
+xLimits = [xMin xMax];
+yLimits = [yMin yMax];
+
+warpedImage1 = imtransform(seq.imgs{1}, maketform('projective',eye(3)), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
+warpedImage2 = imtransform(seq.imgs{2}, maketform('projective',seq.H{1}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
+warpedImage3 = imtransform(seq.imgs{3}, maketform('projective',seq.H{2}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
+
+
+I1 = WarpAndBlend(seq.H{1},seq.imgs{2},seq.imgs{1});
 % subplot(2,2,1);
 % imshow(I1);
 % subplot(2,2,2);
-I2 = WarpAndBlend(seq.H{2},I1,seq.imgs{3});
+I2 = WarpAndBlend(seq.H{2},seq.imgs{3},seq.imgs{1});
+figure
 imshow(I2);
 % subplot(2,2,3);
 % I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
