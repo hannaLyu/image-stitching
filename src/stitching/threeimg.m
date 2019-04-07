@@ -157,18 +157,17 @@ H =Hrecacl(seq.inlier1{i},seq.inlier2{i});
 seq.H{i}=H;
 end
 
-% check answer
+% check answer based on img1
 
 I1 = WarpAndBlend(seq.H{1},seq.imgs{1},seq.imgs{2});
-subplot(2,2,1);
-imshow(I1);
-subplot(2,2,2);
-I2 = WarpAndBlend(seq.H{2},seq.imgs{1},seq.imgs{3});
+% subplot(2,2,1);
+% imshow(I1);
+% subplot(2,2,2);
+I2 = WarpAndBlend(seq.H{2},I1,seq.imgs{3});
 imshow(I2);
-subplot(2,2,3);
-I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
-imshow(I3);
-
+% subplot(2,2,3);
+% I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
+% imshow(I3);
 % compute out put limits for each transform based on img1
 for i = 1:numImages-1
     H=seq.H{i};
@@ -199,11 +198,12 @@ for i=1:numImages-1
     end       
     end
 end
-
-%check answer
+%seq.Hre.1 form img2 to img1
+%seq.Hre.1 form img2 to img3
+%check answer based on img2
 I4=WarpAndBlend(seq.Hre{1},seq.imgs{2},seq.imgs{1});
-imshow(I4);
-
-I5=WarpAndBlend(seq.Hre{2},seq.imgs{2},seq.imgs{3});
+% imshow(I4);
+% figure;hold on;
+I5=WarpAndBlend(seq.Hre{2},I4,seq.imgs{3});
 imshow(I5);
-
+hold off;
