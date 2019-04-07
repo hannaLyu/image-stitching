@@ -3,7 +3,7 @@ figure;hold on;
 imgpath = 'M:\Documents\stitching\stitching\hill\hill';  
 buildingScene = imageDatastore(imgpath);
 montage(buildingScene.Files);
-hold on
+hold on;
 numImages = numel(buildingScene.Files);
 
 
@@ -41,6 +41,7 @@ subplot(2,2,3);
 imshow(seq.imgs{3,1});
 hold on
 plot(seq.corner{1,3}(2,:),seq.corner{1,3}(1,:),'o');
+
 
 %match
 seq.matchingpair=cell(numImages,1);
@@ -168,14 +169,12 @@ subplot(2,2,3);
 I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
 imshow(I3);
 
-% compute out put limits for each transform
-seq.tform=cell(numImages,1);
-seq.T=cell(numImages,1);
-for i = 1:numel(seq.H)
+% compute out put limits for each transform based on img1
+for i = 1:numImages-1
     H=seq.H{i};
     img=seq.imgs{i};
-    tform = maketform('projective',H);
-    [B,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
+    tform = maketform('projective',inv(H));
+    [~,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
     tforms(i)=tform;
 end
 
@@ -183,51 +182,28 @@ end
 % find center image
 avgXLim = mean(xlim, 2);
 [~, idx] = sort(avgXLim);
-centerIdx = floor((numel(seq.tform)+1)/2);
+centerIdx = floor((numel(tforms)+1)/2);
 centerImageIdx = idx(centerIdx);
+[m,~]=find(pairs==centerImageIdx);
+m=flipud(m);
 
-%recompute
-Tinv=inv(tforms(centerImageIdx).tdata.T);
-for i = 1:numel(tforms)
-img=seq.imgs{i};
-    tforms(i).tdata.T = tforms(i).tdata.T * Tinv;
-     [~,xlim(i,:),ylim(i,:)] = imtransform(img,tforms(i)); 
+%recompute H
+seq.Hre=cell(numImages-1,1);
+for i=1:numImages-1
+    if centerImageIdx==1
+    seq.Hre{i}=seq.H{i};
+    else if i<centerImageIdx 
+          seq.Hre{i}=inv(seq.H{m(i)}); 
+    else 
+        seq.Hre{i}=seq.H{m(i)};
+    end       
+    end
 end
 
-maxImageSize = max(imageSize);
+%check answer
+I4=WarpAndBlend(seq.Hre{1},seq.imgs{2},seq.imgs{1});
+imshow(I4);
 
-% Find the minimum and maximum output limits
-xMin = min([1; xlim(:)]);
-xMax = max([maxImageSize(2); xlim(:)]);
+I5=WarpAndBlend(seq.Hre{2},seq.imgs{2},seq.imgs{3});
+imshow(I5);
 
-yMin = min([1; ylim(:)]);
-yMax = max([maxImageSize(1); ylim(:)]);
-blender = vision.AlphaBlender('Operation', 'Binary mask', ...
-    'MaskSource', 'Input port');
-% Create a 2-D spatial reference object defining the size of the panorama.
-xLimits = [xMin xMax];
-yLimits = [yMin yMax];
-
-% Width and height of panorama.
-width  = round(xMax - xMin);
-height = round(yMax - yMin);
-
-% Initialize the "empty" panorama.
-
-panorama = zeros([height width 3] ,'like', I);
-
-
-% Create the panorama.
-for i = 1:numImages
-
-    I = readimage(buildingScene, i);
-
-    % Transform I into the panorama.
-    warpedImage = imtransform(I, tforms(i), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(size(I,3),1));
-    mask = imtransform(zeros(imageSize(1,1),imageSize(1,2)), tforms(1), 'XData',xLimits,'YData',yLimits);
-    panorama = step(blender, panorama, warpedImage, mask);
-
-end
-
-figure
-imshow(panorama);
