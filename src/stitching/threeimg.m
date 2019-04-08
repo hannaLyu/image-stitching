@@ -1,6 +1,6 @@
 clc;clear;
 figure;hold on;
-imgpath = '../../data/hill';  
+ imgpath = 'M:\Documents\stitching\stitching\hill\hill';  
 buildingScene = imageDatastore(imgpath);
 montage(buildingScene.Files);
 hold on;
@@ -177,53 +177,61 @@ warpedImage1 = imtransform(seq.imgs{1}, maketform('projective',eye(3)), 'XData',
 warpedImage2 = imtransform(seq.imgs{2}, maketform('projective',seq.H{1}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 warpedImage3 = imtransform(seq.imgs{3}, maketform('projective',seq.H{2}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 
-
-I1 = WarpAndBlend(seq.H{1},seq.imgs{2},seq.imgs{1});
-% subplot(2,2,1);
-% imshow(I1);
-% subplot(2,2,2);
-I2 = WarpAndBlend(seq.H{2},seq.imgs{3},seq.imgs{1});
-figure
-imshow(I2);
+imshow(warpedImage1);
+imshow(warpedImage2);
+imshow(warpedImage3);
+ I1 = WarpAndBlend(seq.H{1},warpedImage1,warpedImage2);
+ imshow(I1);
+ hold on;
+ I2=WarpAndBlend(seq.H{2},I1,warpedImage3);
+ imshow(I2);
+% 
+% I1 = WarpAndBlend(seq.H{1},seq.imgs{2},seq.imgs{1});
+% % subplot(2,2,1);
+% % imshow(I1);
+% % subplot(2,2,2);
+% I2 = WarpAndBlend(seq.H{2},seq.imgs{3},seq.imgs{1});
+% figure
+% imshow(I2);
 % subplot(2,2,3);
 % I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
 % imshow(I3);
 % compute out put limits for each transform based on img1
-for i = 1:numImages-1
-    H=seq.H{i};
-    img=seq.imgs{i};
-    tform = maketform('projective',inv(H));
-    [~,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
-    tforms(i)=tform;
-end
-
-
-% find center image
-avgXLim = mean(xlim, 2);
-[~, idx] = sort(avgXLim);
-centerIdx = floor((numel(tforms)+1)/2);
-centerImageIdx = idx(centerIdx);
-[m,~]=find(pairs==centerImageIdx);
-m=flipud(m);
-
-%recompute H
-seq.Hre=cell(numImages-1,1);
-for i=1:numImages-1
-    if centerImageIdx==1
-    seq.Hre{i}=seq.H{i};
-    else if i<centerImageIdx 
-          seq.Hre{i}=inv(seq.H{m(i)}); 
-    else 
-        seq.Hre{i}=seq.H{m(i)};
-    end       
-    end
-end
-%seq.Hre.1 form img2 to img1
-%seq.Hre.1 form img2 to img3
-%check answer based on img2
-I4=WarpAndBlend(seq.Hre{1},seq.imgs{2},seq.imgs{1});
-% imshow(I4);
-% figure;hold on;
-I5=WarpAndBlend(seq.Hre{2},I4,seq.imgs{3});
-imshow(I5);
-hold off;
+% for i = 1:numImages-1
+%     H=seq.H{i};
+%     img=seq.imgs{i};
+%     tform = maketform('projective',inv(H));
+%     [~,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
+%     tforms(i)=tform;
+% end
+% 
+% 
+% % find center image
+% avgXLim = mean(xlim, 2);
+% [~, idx] = sort(avgXLim);
+% centerIdx = floor((numel(tforms)+1)/2);
+% centerImageIdx = idx(centerIdx);
+% [m,~]=find(pairs==centerImageIdx);
+% m=flipud(m);
+% 
+% %recompute H
+% seq.Hre=cell(numImages-1,1);
+% for i=1:numImages-1
+%     if centerImageIdx==1
+%     seq.Hre{i}=seq.H{i};
+%     else if i<centerImageIdx 
+%           seq.Hre{i}=inv(seq.H{m(i)}); 
+%     else 
+%         seq.Hre{i}=seq.H{m(i)};
+%     end       
+%     end
+% end
+% %seq.Hre.1 form img2 to img1
+% %seq.Hre.1 form img2 to img3
+% %check answer based on img2
+% I4=WarpAndBlend(seq.Hre{1},seq.imgs{2},seq.imgs{1});
+% % imshow(I4);
+% % figure;hold on;
+% I5=WarpAndBlend(seq.Hre{2},I4,seq.imgs{3});
+% imshow(I5);
+% hold off;
