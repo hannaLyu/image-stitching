@@ -173,7 +173,7 @@ yMax = max(ylim(:));
 xLimits = [xMin xMax];
 yLimits = [yMin yMax];
 % warpedImage=cell(3,1);
-warpedImage1 = imtransform(seq.imgs{1}, maketform('projective',eye(3)), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
+warpedImage1 = imtransform(seq.imgs{1}, maketform('projective',eye(3)'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 warpedImage2 = imtransform(seq.imgs{2}, maketform('projective',seq.H{1}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 warpedImage3 = imtransform(seq.imgs{3}, maketform('projective',seq.H{2}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 
@@ -186,17 +186,10 @@ imshow(warpedImage3);
 %  I2=WarpAndBlend(seq.H{2},I1,warpedImage3);
 %  imshow(I2);
 
-for i = 1:numImages
-    H=seq.H{i};
-    img=seq.imgs{i};
-    tform = maketform('projective',inv(H));
-%     [~,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
-    tforms(i)=tform;
-end
-
-
-
-mask = imtransform(zeros(imageSize(1,1),imageSize(1,2)), tforms(1), 'XData',xLimits,'YData',yLimits);
+tform1=maketform('projective',eye(3)');
+tform2=maketform('projective',seq.H{1}');
+tform3=maketform('projective',seq.H{2}');
+mask = imtransform(zeros(imageSize(1,1),imageSize(1,2)), tform1, 'XData',xLimits,'YData',yLimits);
 
 width  = size(mask,2);
 height = size(mask,1);
@@ -206,25 +199,27 @@ weights = zeros([height width]);
 % for i = 1:numImages
     I = readimage(buildingScene, 1);
     % Transform I into the panorama.
-  
     dist1 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
     dist1(1:margin,:) = 1;dist1(end-margin:end,:) = 1;dist1(:,1:margin) = 1;dist1(:,end-margin:end) = 1;
     dist1 = bwdist(dist1,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
-    dist1t=imtransform(dist1,tforms(1),'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
+    dist1t=imtransform(dist1,tform1,'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
     [panorama,weights] = simpleBlend(warpedImage1, panorama, weights, dist1t);
     I = readimage(buildingScene, 2);
      dist2 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
     dist2(1:margin,:) = 1;dist2(end-margin:end,:) = 1;dist2(:,1:margin) = 1;dist2(:,end-margin:end) = 1;
     dist2 = bwdist(dist2,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
-    dist2t=imtransform(dist2,tforms(2),'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
+    dist2t=imtransform(dist2,tform2,'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
     [panorama,weights] = simpleBlend(warpedImage2, panorama, weights, dist2t);
     I = readimage(buildingScene, 3);
      dist3 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
     dist3(1:margin,:) = 1;dist3(end-margin:end,:) = 1;dist3(:,1:margin) = 1;dist3(:,end-margin:end) = 1;
     dist3 = bwdist(dist3,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
-    dist3t=imtransform(dist3,tforms(3),'XData',xLimits,'YData',yLimits,'FillValues',0)+1e-3 ;
+    dist3t=imtransform(dist3,tform3,'XData',xLimits,'YData',yLimits,'FillValues',0)+1e-3 ;
     [panorama,weights] = simpleBlend(warpedImage3, panorama, weights, dist3t);
 % end
+% imshow(dist1t);
+%  imshow(dist2t);
+%  imshow(dist3t);
 weights = weights+1e-3;
 panorama = panorama ./ weights;
 figure;
