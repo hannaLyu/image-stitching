@@ -172,7 +172,7 @@ yMax = max(ylim(:));
 % Create a 2-D spatial reference object defining the size of the panorama.
 xLimits = [xMin xMax];
 yLimits = [yMin yMax];
-
+% warpedImage=cell(3,1);
 warpedImage1 = imtransform(seq.imgs{1}, maketform('projective',eye(3)), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 warpedImage2 = imtransform(seq.imgs{2}, maketform('projective',seq.H{1}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
 warpedImage3 = imtransform(seq.imgs{3}, maketform('projective',seq.H{2}'), 'XData',xLimits,'YData',yLimits,'FillValues',zeros(3,1));
@@ -180,58 +180,88 @@ warpedImage3 = imtransform(seq.imgs{3}, maketform('projective',seq.H{2}'), 'XDat
 imshow(warpedImage1);
 imshow(warpedImage2);
 imshow(warpedImage3);
- I1 = WarpAndBlend(seq.H{1},warpedImage1,warpedImage2);
- imshow(I1);
- hold on;
- I2=WarpAndBlend(seq.H{2},I1,warpedImage3);
- imshow(I2);
-% 
-% I1 = WarpAndBlend(seq.H{1},seq.imgs{2},seq.imgs{1});
-% % subplot(2,2,1);
-% % imshow(I1);
-% % subplot(2,2,2);
-% I2 = WarpAndBlend(seq.H{2},seq.imgs{3},seq.imgs{1});
-% figure
-% imshow(I2);
-% subplot(2,2,3);
-% I3 = WarpAndBlend(seq.H{3},seq.imgs{2},seq.imgs{3});
-% imshow(I3);
-% compute out put limits for each transform based on img1
-% for i = 1:numImages-1
-%     H=seq.H{i};
-%     img=seq.imgs{i};
-%     tform = maketform('projective',inv(H));
+%  I1 = WarpAndBlend(seq.H{1},warpedImage1,warpedImage2);
+%  imshow(I1);
+%  hold on;
+%  I2=WarpAndBlend(seq.H{2},I1,warpedImage3);
+%  imshow(I2);
+
+for i = 1:numImages
+    H=seq.H{i};
+    img=seq.imgs{i};
+    tform = maketform('projective',inv(H));
 %     [~,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
-%     tforms(i)=tform;
+    tforms(i)=tform;
+end
+
+
+
+mask = imtransform(zeros(imageSize(1,1),imageSize(1,2)), tforms(1), 'XData',xLimits,'YData',yLimits);
+
+width  = size(mask,2);
+height = size(mask,1);
+margin=20;
+panorama = zeros([height width 3]);
+weights = zeros([height width]);
+% for i = 1:numImages
+    I = readimage(buildingScene, 1);
+    % Transform I into the panorama.
+  
+    dist1 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
+    dist1(1:margin,:) = 1;dist1(end-margin:end,:) = 1;dist1(:,1:margin) = 1;dist1(:,end-margin:end) = 1;
+    dist1 = bwdist(dist1,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
+    dist1t=imtransform(dist1,tforms(1),'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
+    [panorama,weights] = simpleBlend(warpedImage1, panorama, weights, dist1t);
+    I = readimage(buildingScene, 2);
+     dist2 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
+    dist2(1:margin,:) = 1;dist2(end-margin:end,:) = 1;dist2(:,1:margin) = 1;dist2(:,end-margin:end) = 1;
+    dist2 = bwdist(dist2,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
+    dist2t=imtransform(dist2,tforms(2),'XData',xLimits,'YData',yLimits,'FillValues',0) + 1e-3;
+    [panorama,weights] = simpleBlend(warpedImage2, panorama, weights, dist2t);
+    I = readimage(buildingScene, 3);
+     dist3 = zeros(size(I,1),size(I,2));%dist1(round(size(I,1)*0.5),round(size(I,2)*0.5)) = 1;
+    dist3(1:margin,:) = 1;dist3(end-margin:end,:) = 1;dist3(:,1:margin) = 1;dist3(:,end-margin:end) = 1;
+    dist3 = bwdist(dist3,'euclidean');%maxdist = max(dist1(:));dist1 = (maxdist+1) - dist1;
+    dist3t=imtransform(dist3,tforms(3),'XData',xLimits,'YData',yLimits,'FillValues',0)+1e-3 ;
+    [panorama,weights] = simpleBlend(warpedImage3, panorama, weights, dist3t);
 % end
-% 
-% 
-% % find center image
-% avgXLim = mean(xlim, 2);
-% [~, idx] = sort(avgXLim);
-% centerIdx = floor((numel(tforms)+1)/2);
-% centerImageIdx = idx(centerIdx);
-% [m,~]=find(pairs==centerImageIdx);
-% m=flipud(m);
-% 
-% %recompute H
-% seq.Hre=cell(numImages-1,1);
-% for i=1:numImages-1
-%     if centerImageIdx==1
-%     seq.Hre{i}=seq.H{i};
-%     else if i<centerImageIdx 
-%           seq.Hre{i}=inv(seq.H{m(i)}); 
-%     else 
-%         seq.Hre{i}=seq.H{m(i)};
-%     end       
-%     end
-% end
-% %seq.Hre.1 form img2 to img1
-% %seq.Hre.1 form img2 to img3
-% %check answer based on img2
-% I4=WarpAndBlend(seq.Hre{1},seq.imgs{2},seq.imgs{1});
-% % imshow(I4);
-% % figure;hold on;
-% I5=WarpAndBlend(seq.Hre{2},I4,seq.imgs{3});
-% imshow(I5);
-% hold off;
+weights = weights+1e-3;
+panorama = panorama ./ weights;
+figure;
+imshow(panorama);
+
+
+
+
+
+
+for i = 1:numImages-1
+    H=seq.H{i};
+    img=seq.imgs{i};
+    tform = maketform('projective',inv(H));
+    [~,xlim(i,:),ylim(i,:)] = imtransform(img,tform); 
+    tforms(i)=tform;
+end
+
+function [panorama,weights] = simpleBlend(im1, panorama, weights, dist)
+    weight = dist./(max(dist(:)));
+    weights = weights + weight;
+    if size(im1,3) == 1
+        panorama = combine(im1, panorama, weight);
+    else
+        panorama(:,:,1) = combine(im1(:,:,1), panorama(:,:,1), weight);
+        panorama(:,:,2) = combine(im1(:,:,2), panorama(:,:,2), weight);
+        panorama(:,:,3) = combine(im1(:,:,3), panorama(:,:,3), weight);
+    end
+end
+
+function im12 = combine(im1, im2, weight)
+    im12 = im2;
+    im12 = im12 + weight.*im2double(im1);
+end
+
+   
+ 
+ 
+
+
