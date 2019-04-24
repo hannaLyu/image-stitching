@@ -37,4 +37,7 @@ docs/texfile/build/*.out
 docs/texfile/build/*.pdf
 docs/texfile/build/*.synctex.gz
 docs/texfile/build/*.m
+
 src/trash/rottest.m
+
+.gitignore
