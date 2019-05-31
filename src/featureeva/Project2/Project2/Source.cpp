@@ -1,44 +1,58 @@
-﻿#include <iostream>
-#include "opencv2/opencv.hpp"
+﻿#include "opencv2/opencv.hpp"
 #include "opencv2/core/core.hpp"  
 #include "opencv2/features2d/features2d.hpp"  
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"  
+#include "opencv2/xfeatures2d.hpp"
 #include <iostream>  
 #include <vector> 
+//#include
 
 //#include "cv_import_static_lib.h"
 
 using namespace std;
 using namespace cv;
 
-void main() {
+int main(void) {
 
+	cout << "hello opencv " << endl;
+	Mat img_1 = imread("M:\\Documents\\HelloCv\\Project2\\Project2\\KITTI\\000000.png");
+	Mat img_2 = imread("M:\\Documents\\HelloCv\\Project2\\Project2\\KITTI\\000001.png");
 
-	Mat img_1 = imread("KITTI\000000.png",IMREAD_GRAYSCALE);
-	Mat img_2 = imread("KITTI\000001.png",IMREAD_GRAYSCALE);
 	if (!img_1.data || !img_2.data)
 	{
 		cout << "error reading images " << endl;
-		return;
+		return 0;
 	}
+
+
 	/*feature detect*/
 	vector<KeyPoint> keyPoints_1, keyPoints_2;
 	Mat descriptors_1, descriptors_2;
 
 	/*-----------------FAST featrue Point----------------*/
-	Ptr<FastFeatureDetector> detector_FAST = FastFeatureDetector::create();
-	detector_FAST->detect(img_1, keyPoints_1);
-	detector_FAST->detect(img_2, keyPoints_2);
-	Ptr<ORB> descriptor_ORB = ORB::create();
-	descriptor_ORB->compute(img_1, keyPoints_1, descriptors_1);
-	descriptor_ORB->compute(img_2, keyPoints_2, descriptors_2);
-
-	
+	//Ptr<FastFeatureDetector> detector_FAST = FastFeatureDetector::create();
+	//detector_FAST->detect(img_1, keyPoints_1);
+	//detector_FAST->detect(img_2, keyPoints_2);
+	//Ptr<ORB> descriptor_ORB = ORB::create();
+	//descriptor_ORB->compute(img_1, keyPoints_1, descriptors_1);
+	//descriptor_ORB->compute(img_2, keyPoints_2, descriptors_2);
+	/*-----------------SIFT featrue Point----------------*/
+	//cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
+	//sift->detect(img_1, keyPoints_1);
+	//sift->detect(img_2, keyPoints_2);
+	//sift->detectAndCompute(img_1, cv::Mat(), keyPoints_1, descriptors_1);
+	//sift->detectAndCompute(img_2, cv::Mat(), keyPoints_2, descriptors_2);
+	/*-----------------SIFT featrue Point----------------*/
+	cv::Ptr<cv::xfeatures2d::SURF> surf = cv::xfeatures2d::SURF::create();
+	surf->detect(img_1, keyPoints_1);
+	surf->detect(img_2, keyPoints_2);
+	surf->detectAndCompute(img_1, cv::Mat(), keyPoints_1, descriptors_1);
+	surf->detectAndCompute(img_2, cv::Mat(), keyPoints_2, descriptors_2);
 
 	/*feature matching*/
 	BFMatcher matcher;
-	std :: vector< DMatch > matches;
+	std::vector< DMatch > matches;
 	matcher.match(descriptors_1, descriptors_2, matches);
 
 	double max_dist = 0; double min_dist = 100;
@@ -67,10 +81,10 @@ void main() {
 	vector<KeyPoint> m_LeftKey;
 	vector<KeyPoint> m_RightKey;
 	vector<DMatch> m_Matches;
-	
+
 
 	int ptCount = (int)matches.size();
-	Mat p1(ptCount, 2,CV_32F);
+	Mat p1(ptCount, 2, CV_32F);
 	Mat p2(ptCount, 2, CV_32F);
 
 	// transfer Keypoint to Mat
@@ -97,7 +111,7 @@ void main() {
 	int OutlinerCount = 0;
 	for (int i = 0; i<ptCount; i++)
 	{
-		if (m_RANSACStatus[i] == 0) 
+		if (m_RANSACStatus[i] == 0)
 		{
 			OutlinerCount++;
 		}
@@ -140,7 +154,7 @@ void main() {
 	drawMatches(img_1, key1, img_2, key2, m_InlierMatches, OutImage);
 
 	//stereoRectifyUncalibrated();
-
+	cout << "-- InlinerCount :" << InlinerCount << endl;
 	Mat img_matches;
 	drawMatches(img_1, keyPoints_1, img_2, keyPoints_2,
 		good_matches, img_matches, Scalar::all(-1), Scalar::all(-1),
@@ -152,6 +166,6 @@ void main() {
 	imwrite("FmatrixResult.jpg", OutImage);
 	imshow("Match2", OutImage);
 	waitKey(0);
-
-	return;
+	//system("pause");
+	return 0;
 }
