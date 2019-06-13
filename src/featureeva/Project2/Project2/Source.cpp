@@ -11,20 +11,19 @@ using namespace std;
 using namespace cv;
 
 int main() {
-	
+
 
 	/*translation image*/
-	//Mat img_1 = imread("M:\\Documents\\KITTI\\000000.png");
-	//Mat img_2 = imread("M:\\Documents\\KITTI\\000001.png");
+	/*Mat img_1 = imread("M:\\Documents\\KITTI\\000000.png");
+	Mat img_2 = imread("M:\\Documents\\KITTI\\000001.png");*/
 	/*spin image*/
 	/*Mat img_1 = imread("M:\\Documents\\KITTI\\bark.120.tiff");
 	Mat img_2 = imread("M:\\Documents\\KITTI\\bark.000.tiff");*/
 	/*zoom + spin image*/
-	//Mat img_1 = imread("M:\\Documents\\KITTI\\Tiles_perspective_undistort.png");
-	//Mat img_2 = imread("M:\\Documents\\KITTI\\Tiles_perspective_distort.png");
-	/*image blur*/
-	//Mat img_1 = imread("M:\\Documents\\KITTI\\norway.jpg");
-	//Mat img_2 = imread("M:\\Documents\\KITTI\\norwayblur.jpg");
+	/*Mat img_1 = imread("M:\\Documents\\KITTI\\Tiles_perspective_undistort.png");
+	Mat img_2 = imread("M:\\Documents\\KITTI\\Tiles_perspective_distort.png");*/
+	/*Mat img_1 = imread("M:\\Documents\\KITTI\\norway.jpg");
+	Mat img_2 = imread("M:\\Documents\\KITTI\\norwayblur.jpg");*/
 	/*light change*/
 	Mat img_1 = imread("M:\\Documents\\KITTI\\plane1.jpg");
 	Mat img_2 = imread("M:\\Documents\\KITTI\\planelighter.jpg");
@@ -34,7 +33,7 @@ int main() {
 		waitKey(0);
 		return 0;
 	}
-    
+
 
 
 	/*feature detect*/
@@ -53,34 +52,38 @@ int main() {
 		Ptr<ORB> descriptor_ORB = ORB::create();
 		descriptor_ORB->compute(img_1, keyPoints_1, descriptors_1);
 		descriptor_ORB->compute(img_2, keyPoints_2, descriptors_2);
-		cout << "FAST feature point " << endl;
+		cout << "-- ORB" << endl;
 	}
-	
+
 	/*-----------------SURF featrue Point----------------*/
-	else if(n==2){
+	else if (n == 2) {
 		cv::Ptr<cv::xfeatures2d::SURF> surf = cv::xfeatures2d::SURF::create();
 		surf->detect(img_1, keyPoints_1);
 		surf->detect(img_2, keyPoints_2);
 		surf->detectAndCompute(img_1, cv::Mat(), keyPoints_1, descriptors_1);
 		surf->detectAndCompute(img_2, cv::Mat(), keyPoints_2, descriptors_2);
-		cout << "SURF feature point " << endl;
+		cout << "SURF  " << endl;
 	}
 	/*-----------------SIFT featrue Point----------------*/
-	else if(n==3){
+	else if (n == 3) {
 		cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
 		sift->detect(img_1, keyPoints_1);
 		sift->detect(img_2, keyPoints_2);
 		sift->detectAndCompute(img_1, cv::Mat(), keyPoints_1, descriptors_1);
 		sift->detectAndCompute(img_2, cv::Mat(), keyPoints_2, descriptors_2);
-		cout << "SIFT feature point " << endl;
-		
+		cout << "-- SIFT "  << endl;
+
 	}
 
+	
+	//cout << "-- SIFT Keypoints :" << keyPoints_1 << endl;
 
 	/*feature matching*/
 	BFMatcher matcher;
 	std::vector< DMatch > matches;
 	matcher.match(descriptors_1, descriptors_2, matches);
+
+
 
 	double max_dist = 0; double min_dist = 100;
 	//Task 1:  Quick calculation of max and min distances between keypoints  
@@ -103,14 +106,20 @@ int main() {
 			good_matches.push_back(matches[i]);
 		}
 	}
-
-
+	int goodCount = (int)good_matches.size();
+	cout << "-- good matches :" << goodCount << endl;
 	vector<KeyPoint> m_LeftKey;
 	vector<KeyPoint> m_RightKey;
 	vector<DMatch> m_Matches;
-
+	
 
 	int ptCount = (int)matches.size();
+	/*int keypoint1 = (int)keyPoints_1.size();
+	int keypoint2 = (int)keyPoints_2.size();*/
+	cout << "-- whole matches :" << ptCount << endl;
+	
+	
+
 	Mat p1(ptCount, 2, CV_32F);
 	Mat p2(ptCount, 2, CV_32F);
 
@@ -127,6 +136,10 @@ int main() {
 		p2.at<float>(i, 1) = pt.y;
 	}
 
+	int kp1 = p1.rows;
+	int kp2 = p2.rows;
+	/*cout << "-- kp1 :" << kp1 << endl;
+	cout << "-- kp2 :" << kp2 << endl;*/
 
 	// Task2: caculate F matrix based on RANSAC
 	Mat m_Fundamental;
@@ -148,6 +161,7 @@ int main() {
 	vector<Point2f> m_LeftInlier;
 	vector<Point2f> m_RightInlier;
 	vector<DMatch> m_InlierMatches;
+	
 	int InlinerCount = ptCount - OutlinerCount;
 	m_InlierMatches.resize(InlinerCount);
 	m_LeftInlier.resize(InlinerCount);
@@ -181,6 +195,7 @@ int main() {
 	drawMatches(img_1, key1, img_2, key2, m_InlierMatches, OutImage);
 	if (n == 1) {
 		cout << "-- FAST InlinerCount :" << InlinerCount << endl;
+		
 	}
 	else if (n == 2) {
 		cout << "-- SURF InlinerCount :" << InlinerCount << endl;
